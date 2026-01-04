@@ -1,41 +1,119 @@
+//! Commit message parsing module
+//!
+//! Parses commit messages following the Conventional Commits specification:
+//! https://www.conventionalcommits.org/
+
 use regex::Regex;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+/// A parsed conventional commit
+#[derive(Debug, Clone, Default)]
 pub struct ConventionalCommit {
-    pub r#type: String,
-    pub scope: Option<String>,
-    pub breaking: bool,
-    pub subject: String,
-    pub body: Option<String>,
-    pub footer: Option<HashMap<String, String>>,
-}
-
-#[derive(Debug, Clone)]
-pub struct CommitMessage {
+    /// Raw commit message
     pub raw: String,
+    /// Commit header (first line)
     pub header: String,
+    /// Commit type (feat, fix, etc.)
+    pub commit_type: Option<String>,
+    /// Commit scope (optional, in parentheses)
+    pub scope: Option<String>,
+    /// Whether this is a breaking change (! after type/scope)
+    pub breaking: bool,
+    /// Commit subject (description after type:)
+    pub subject: Option<String>,
+    /// Commit body (optional, after blank line)
     pub body: Option<String>,
+    /// Commit footer (optional, contains trailers)
     pub footer: Option<String>,
+    /// Breaking change description (from BREAKING CHANGE: trailer)
+    pub breaking_change: Option<String>,
+    /// Issue references (e.g., #123, closes #456)
+    pub references: Vec<Reference>,
+    /// All trailers/notes
+    pub notes: Vec<Note>,
+    /// All footer trailers as key-value pairs
+    pub trailers: HashMap<String, Vec<String>>,
 }
 
-impl CommitMessage {
-    pub fn from_str(msg: &str) -> Self {
-        let lines: Vec<&str> = msg.lines().collect();
-        let header = lines.first().map(|s| s.to_string()).unwrap_or_default();
+/// An issue reference
+#[derive(Debug, Clone)]
+pub struct Reference {
+    pub action: Option<String>,
+    pub owner: Option<String>,
+    pub repository: Option<String>,
+    pub issue: String,
+    pub raw: String,
+}
 
-        let mut body_lines = Vec::new();
-        let mut footer_lines = Vec::new();
+/// A note/trailer in the commit footer
+#[derive(Debug, Clone)]
+pub struct Note {
+    pub title: String,
+    pub text: String,
+}
+
+impl ConventionalCommit {
+    /// Parse a commit message using the given header pattern
+    pub fn parse(message: &str, header_pattern: &str) -> Self {
+        let mut commit = ConventionalCommit {
+            raw: message.to_string(),
+            ..Default::default()
+        };
+
+        let lines: Vec<&str> = message.lines().collect();
+
+        if lines.is_empty() {
+            return commit;
+        }
+
+        // Parse header
+        commit.header = lines[0].to_string();
+        commit.parse_header(header_pattern);
+
+        // Parse body and footer
+        if lines.len() > 1 {
+            commit.parse_body_and_footer(&lines[1..]);
+        }
+
+        commit
+    }
+
+    /// Parse the header line
+    fn parse_header(&mut self, pattern: &str) {
+        if let Ok(re) = Regex::new(pattern) {
+            if let Some(caps) = re.captures(&self.header) {
+                self.commit_type = caps.name("type").map(|m| m.as_str().to_string());
+                self.scope = caps.name("scope").map(|m| m.as_str().to_string());
+                self.breaking = caps.name("breaking").is_some();
+                self.subject = caps.name("subject").map(|m| m.as_str().to_string());
+            }
+        }
+    }
+
+    /// Parse body and footer sections
+    fn parse_body_and_footer(&mut self, lines: &[&str]) {
+        let mut body_lines: Vec<&str> = Vec::new();
+        let mut footer_lines: Vec<&str> = Vec::new();
         let mut in_footer = false;
+        let mut had_blank = false;
 
-        for (i, line) in lines.iter().enumerate().skip(1) {
-            if i == 1 && line.trim().is_empty() {
-                continue; // Skip blank line after header
+        // Footer trailer pattern: "Token: value" or "Token #value" or "BREAKING CHANGE: value"
+        let trailer_re = Regex::new(r"^([A-Za-z][A-Za-z0-9-]*|BREAKING CHANGE):\s*(.*)$").unwrap();
+        let breaking_re = Regex::new(r"^BREAKING[ -]CHANGE:\s*(.*)$").unwrap();
+
+        for line in lines {
+            let trimmed = line.trim();
+
+            if trimmed.is_empty() {
+                had_blank = true;
+                if !in_footer && !body_lines.is_empty() {
+                    body_lines.push(*line);
+                }
+                continue;
             }
 
-            // Footer starts with BREAKING CHANGE or a token like "Closes:", "Fixes:", etc.
-            if line.starts_with("BREAKING CHANGE:")
-                || Regex::new(r"^[A-Z][a-z]+(?:-[A-Z][a-z]+)*:").unwrap().is_match(line) {
+            // Check if this line starts a footer
+            if had_blank && (trailer_re.is_match(line) || breaking_re.is_match(line)) {
                 in_footer = true;
             }
 
@@ -46,93 +124,244 @@ impl CommitMessage {
             }
         }
 
-        let body = if body_lines.is_empty() {
-            None
-        } else {
-            Some(body_lines.join("\n"))
-        };
+        // Set body
+        if !body_lines.is_empty() {
+            // Remove leading blank line if present
+            let body_start = if body_lines.first().map(|l| l.trim().is_empty()).unwrap_or(false) {
+                1
+            } else {
+                0
+            };
 
-        let footer = if footer_lines.is_empty() {
-            None
-        } else {
-            Some(footer_lines.join("\n"))
-        };
-
-        Self {
-            raw: msg.to_string(),
-            header,
-            body,
-            footer,
-        }
-    }
-
-    pub fn parse_conventional(&self, pattern: &str) -> anyhow::Result<ConventionalCommit> {
-        let re = Regex::new(pattern)?;
-
-        if let Some(caps) = re.captures(&self.header) {
-            let r#type = caps.name("type")
-                .map(|m| m.as_str().to_string())
-                .ok_or_else(|| anyhow::anyhow!("Missing 'type' in commit message"))?;
-
-            let scope = caps.name("scope").map(|m| m.as_str().to_string());
-            let breaking = caps.name("breaking").is_some();
-            let subject = caps.name("subject")
-                .map(|m| m.as_str().to_string())
-                .ok_or_else(|| anyhow::anyhow!("Missing 'subject' in commit message"))?;
-
-            // Parse footer for breaking changes and other metadata
-            let mut footer_map = HashMap::new();
-            if let Some(ref footer) = self.footer {
-                for line in footer.lines() {
-                    if line.starts_with("BREAKING CHANGE:") {
-                        footer_map.insert("BREAKING CHANGE".to_string(),
-                            line.strip_prefix("BREAKING CHANGE:").unwrap_or("").trim().to_string());
-                    } else if let Some((key, value)) = line.split_once(':') {
-                        footer_map.insert(key.trim().to_string(), value.trim().to_string());
-                    }
-                }
+            let body_content: Vec<&str> = body_lines[body_start..].to_vec();
+            if !body_content.is_empty() {
+                self.body = Some(body_content.join("\n"));
             }
+        }
 
-            // Check footer for breaking change indicator
-            let breaking_from_footer = footer_map.contains_key("BREAKING CHANGE");
+        // Parse footer
+        if !footer_lines.is_empty() {
+            self.footer = Some(footer_lines.join("\n"));
+            self.parse_footer(&footer_lines);
+        }
 
-            Ok(ConventionalCommit {
-                r#type,
-                scope,
-                breaking: breaking || breaking_from_footer,
-                subject,
-                body: self.body.clone(),
-                footer: if footer_map.is_empty() { None } else { Some(footer_map) },
-            })
-        } else {
-            anyhow::bail!("Commit message does not match conventional commit format")
+        // Also extract references from body (they might not be in proper footer format)
+        if let Some(body) = self.body.clone() {
+            self.extract_references_from_text(&body);
         }
     }
+
+    /// Extract issue references from text
+    fn extract_references_from_text(&mut self, text: &str) {
+        let reference_re = Regex::new(r"(?i)(close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)").unwrap();
+        let issue_re = Regex::new(r"#(\d+)").unwrap();
+
+        // Extract action references (e.g., "Fixes #123")
+        for caps in reference_re.captures_iter(text) {
+            let action = caps.get(1).map(|m| m.as_str().to_lowercase());
+            let issue = caps.get(2).unwrap().as_str().to_string();
+
+            // Avoid duplicates
+            if !self.references.iter().any(|r| r.issue == issue) {
+                self.references.push(Reference {
+                    action,
+                    owner: None,
+                    repository: None,
+                    issue: issue.clone(),
+                    raw: format!("#{}", issue),
+                });
+            }
+        }
+
+        // Extract bare references (e.g., "#123")
+        for caps in issue_re.captures_iter(text) {
+            let issue = caps.get(1).unwrap().as_str().to_string();
+            // Avoid duplicates
+            if !self.references.iter().any(|r| r.issue == issue) {
+                self.references.push(Reference {
+                    action: None,
+                    owner: None,
+                    repository: None,
+                    issue: issue.clone(),
+                    raw: format!("#{}", issue),
+                });
+            }
+        }
+    }
+
+    /// Parse footer trailers
+    fn parse_footer(&mut self, lines: &[&str]) {
+        let trailer_re = Regex::new(r"^([A-Za-z][A-Za-z0-9-]*|BREAKING CHANGE):\s*(.*)$").unwrap();
+        let reference_re = Regex::new(r"(?i)(close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)").unwrap();
+        let issue_re = Regex::new(r"#(\d+)").unwrap();
+
+        let mut current_trailer: Option<(String, String)> = None;
+
+        for line in lines {
+            if let Some(caps) = trailer_re.captures(line) {
+                // Save previous trailer
+                if let Some((key, value)) = current_trailer.take() {
+                    self.add_trailer(&key, &value);
+                }
+
+                let key = caps.get(1).unwrap().as_str().to_string();
+                let value = caps.get(2).unwrap().as_str().to_string();
+                current_trailer = Some((key, value));
+            } else if let Some((ref _key, ref mut value)) = current_trailer {
+                // Continuation of previous trailer
+                if !value.is_empty() {
+                    value.push('\n');
+                }
+                value.push_str(line);
+            }
+        }
+
+        // Save last trailer
+        if let Some((key, value)) = current_trailer {
+            self.add_trailer(&key, &value);
+        }
+
+        // Extract BREAKING CHANGE
+        if let Some(breaking_values) = self.trailers.get("BREAKING CHANGE") {
+            self.breaking_change = breaking_values.first().cloned();
+            if self.breaking_change.is_some() {
+                self.breaking = true;
+            }
+        }
+        if let Some(breaking_values) = self.trailers.get("BREAKING-CHANGE") {
+            self.breaking_change = breaking_values.first().cloned();
+            if self.breaking_change.is_some() {
+                self.breaking = true;
+            }
+        }
+
+        // Extract references from footer
+        let footer_text = lines.join("\n");
+        for caps in reference_re.captures_iter(&footer_text) {
+            let action = caps.get(1).map(|m| m.as_str().to_lowercase());
+            let issue = caps.get(2).unwrap().as_str().to_string();
+            self.references.push(Reference {
+                action,
+                owner: None,
+                repository: None,
+                issue: issue.clone(),
+                raw: format!("#{}", issue),
+            });
+        }
+
+        // Also find bare references
+        for caps in issue_re.captures_iter(&footer_text) {
+            let issue = caps.get(1).unwrap().as_str().to_string();
+            // Avoid duplicates
+            if !self.references.iter().any(|r| r.issue == issue) {
+                self.references.push(Reference {
+                    action: None,
+                    owner: None,
+                    repository: None,
+                    issue: issue.clone(),
+                    raw: format!("#{}", issue),
+                });
+            }
+        }
+
+        // Create notes from trailers
+        for (key, values) in &self.trailers {
+            for value in values {
+                self.notes.push(Note {
+                    title: key.clone(),
+                    text: value.clone(),
+                });
+            }
+        }
+    }
+
+    /// Add a trailer to the trailers map
+    fn add_trailer(&mut self, key: &str, value: &str) {
+        self.trailers
+            .entry(key.to_string())
+            .or_insert_with(Vec::new)
+            .push(value.trim().to_string());
+    }
+
+    /// Check if the commit has a valid conventional format
+    pub fn is_valid(&self) -> bool {
+        self.commit_type.is_some() && self.subject.is_some()
+    }
+
+    /// Get the full description (subject + body)
+    pub fn full_description(&self) -> String {
+        match &self.body {
+            Some(body) => format!("{}\n\n{}", self.subject.as_deref().unwrap_or(""), body),
+            None => self.subject.clone().unwrap_or_default(),
+        }
+    }
+}
+
+/// Parse multiple commit messages (e.g., from git log)
+pub fn parse_commits(messages: &[String], header_pattern: &str) -> Vec<ConventionalCommit> {
+    messages
+        .iter()
+        .map(|msg| ConventionalCommit::parse(msg, header_pattern))
+        .collect()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    const DEFAULT_PATTERN: &str = r"^(?P<type>\w+)(?:\((?P<scope>[^)]+)\))?(?P<breaking>!)?:\s*(?P<subject>.*)$";
+
     #[test]
-    fn test_parse_simple_commit() {
-        let msg = CommitMessage::from_str("feat: add new feature");
-        assert_eq!(msg.header, "feat: add new feature");
+    fn test_simple_commit() {
+        let commit = ConventionalCommit::parse("feat: add new feature", DEFAULT_PATTERN);
+        assert_eq!(commit.commit_type, Some("feat".to_string()));
+        assert_eq!(commit.subject, Some("add new feature".to_string()));
+        assert_eq!(commit.scope, None);
+        assert!(!commit.breaking);
     }
 
     #[test]
-    fn test_parse_with_scope() {
-        let msg = CommitMessage::from_str("feat(api): add endpoint");
-        let pattern = r"^(?P<type>\w+)(?:\((?P<scope>[^)]+)\))?(?P<breaking>!)?:\s(?P<subject>.*)$";
-        let commit = msg.parse_conventional(pattern).unwrap();
-        assert_eq!(commit.r#type, "feat");
+    fn test_commit_with_scope() {
+        let commit = ConventionalCommit::parse("feat(api): add endpoint", DEFAULT_PATTERN);
+        assert_eq!(commit.commit_type, Some("feat".to_string()));
         assert_eq!(commit.scope, Some("api".to_string()));
+        assert_eq!(commit.subject, Some("add endpoint".to_string()));
     }
 
     #[test]
-    fn test_parse_with_body() {
-        let msg = CommitMessage::from_str("feat: add feature\n\nThis is the body");
-        assert_eq!(msg.body, Some("This is the body".to_string()));
+    fn test_breaking_change_marker() {
+        let commit = ConventionalCommit::parse("feat!: breaking change", DEFAULT_PATTERN);
+        assert!(commit.breaking);
+    }
+
+    #[test]
+    fn test_commit_with_body() {
+        let msg = "feat: add feature\n\nThis is the body\nwith multiple lines";
+        let commit = ConventionalCommit::parse(msg, DEFAULT_PATTERN);
+        assert_eq!(commit.body, Some("This is the body\nwith multiple lines".to_string()));
+    }
+
+    #[test]
+    fn test_commit_with_footer() {
+        let msg = "feat: add feature\n\nBody text\n\nCloses: #123\nReviewed-by: John";
+        let commit = ConventionalCommit::parse(msg, DEFAULT_PATTERN);
+        assert!(commit.footer.is_some());
+        assert!(commit.trailers.contains_key("Closes"));
+        assert!(commit.trailers.contains_key("Reviewed-by"));
+    }
+
+    #[test]
+    fn test_breaking_change_footer() {
+        let msg = "feat: add feature\n\nBREAKING CHANGE: This breaks everything";
+        let commit = ConventionalCommit::parse(msg, DEFAULT_PATTERN);
+        assert!(commit.breaking);
+        assert_eq!(commit.breaking_change, Some("This breaks everything".to_string()));
+    }
+
+    #[test]
+    fn test_references() {
+        let msg = "fix: bug fix\n\nFixes #123\nCloses #456";
+        let commit = ConventionalCommit::parse(msg, DEFAULT_PATTERN);
+        assert!(!commit.references.is_empty());
     }
 }
-

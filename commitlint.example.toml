@@ -1,69 +1,248 @@
 # Example configuration for cargo-commitlint
-# Copy this file to commitlint.toml or .commitlint.toml in your project root
+# Compatible with commitlint (Node.js) configuration format
+#
+# Copy this file to one of:
+#   - commitlint.toml
+#   - .commitlint.toml
+#   - .commitlintrc.toml
+#   - .cargo/commitlint.toml
+#
+# Or use JSON/YAML formats:
+#   - .commitlintrc.json
+#   - .commitlintrc.yaml
+#   - .commitlintrc.yml
+
+# Extend shared configurations (built-in presets)
+# Options: "conventional", "@commitlint/config-conventional"
+# extends = ["conventional"]
+
+# Help URL displayed in error messages
+# helpUrl = "https://github.com/conventional-changelog/commitlint/#what-is-commitlint"
+
+# Default ignores for common non-conventional commits
+# Set to false to validate all commits including merges, reverts, etc.
+defaultIgnores = true
+
+# Custom ignore patterns (regex)
+# Commits matching these patterns will skip validation
+ignores = [
+    # "^Merge branch",
+    # "^Revert",
+    # "^WIP:",
+]
+
+# ============================================================================
+# RULES CONFIGURATION
+# ============================================================================
+# Each rule can have:
+#   - level: 0 = disabled, 1 = warning, 2 = error
+#   - applicable: "always" or "never" (inverts the rule)
+#   - value: rule-specific configuration
+#
+# Format: { level = 2, applicable = "always", value = ... }
 
 [rules]
-# Type validation
-[rules.type]
-# Allowed commit types (empty means all types are allowed)
-enum = [
-    "build",
-    "chore",
-    "ci",
-    "docs",
-    "feat",
-    "fix",
-    "perf",
-    "refactor",
-    "revert",
-    "style",
-    "test",
+
+# ============================================================================
+# TYPE RULES - Validates the commit type (feat, fix, etc.)
+# ============================================================================
+
+# Allowed commit types
+[rules.type-enum]
+level = 2
+applicable = "always"
+value = [
+    "build",    # Changes to build system or dependencies
+    "chore",    # Maintenance tasks
+    "ci",       # CI configuration changes
+    "docs",     # Documentation only changes
+    "feat",     # New features
+    "fix",      # Bug fixes
+    "perf",     # Performance improvements
+    "refactor", # Code refactoring
+    "revert",   # Reverts a previous commit
+    "style",    # Code style changes (formatting, etc.)
+    "test",     # Adding or updating tests
 ]
-# Case requirement for type (lowercase, uppercase, camel-case, kebab-case, pascal-case, snake-case)
-case = "lowercase"
 
-# Scope validation
-[rules.scope]
-# Allowed scopes (empty means all scopes are allowed)
-enum = []
-# Case requirement for scope
-case = "lowercase"
+# Type case validation
+[rules.type-case]
+level = 2
+applicable = "always"
+value = ["lower-case"]
 
-# Subject validation
-# Case requirements for subject (sentence-case, lowercase, uppercase, start-case)
-subject_case = ["sentence-case"]
-# Whether subject can be empty
-subject_empty = false
-# Full stop character that should not appear at the end of subject
-subject_full_stop = "."
+# Type cannot be empty
+[rules.type-empty]
+level = 2
+applicable = "never"
+value = []
 
-# Header validation
-header_max_length = 72
-header_min_length = 0
+# Maximum type length
+# [rules.type-max-length]
+# level = 2
+# applicable = "always"
+# value = 10
 
-# Body validation
-body_leading_blank = true
-body_max_line_length = 100
+# Minimum type length
+# [rules.type-min-length]
+# level = 2
+# applicable = "always"
+# value = 2
 
-# Footer validation
-footer_leading_blank = true
-footer_max_line_length = 100
+# ============================================================================
+# SCOPE RULES - Validates the commit scope (optional part in parentheses)
+# ============================================================================
 
-# Parser configuration
+# Allowed scopes (empty means any scope is allowed)
+# [rules.scope-enum]
+# level = 2
+# applicable = "always"
+# value = ["api", "core", "cli", "config", "docs"]
+
+# Scope case validation
+[rules.scope-case]
+level = 2
+applicable = "always"
+value = ["lower-case", "kebab-case"]
+
+# Whether scope can be empty
+# [rules.scope-empty]
+# level = 2
+# applicable = "never"
+# value = []
+
+# Maximum scope length
+# [rules.scope-max-length]
+# level = 2
+# applicable = "always"
+# value = 20
+
+# ============================================================================
+# SUBJECT RULES - Validates the commit subject (description)
+# ============================================================================
+
+# Subject case validation
+# Options: "lower-case", "upper-case", "camel-case", "kebab-case",
+#          "pascal-case", "sentence-case", "snake-case", "start-case"
+[rules.subject-case]
+level = 2
+applicable = "always"
+value = ["lower-case", "sentence-case"]
+
+# Subject cannot be empty
+[rules.subject-empty]
+level = 2
+applicable = "never"
+value = []
+
+# Subject must not end with period
+[rules.subject-full-stop]
+level = 2
+applicable = "never"
+value = "."
+
+# Maximum subject length
+# [rules.subject-max-length]
+# level = 2
+# applicable = "always"
+# value = 72
+
+# Minimum subject length
+# [rules.subject-min-length]
+# level = 2
+# applicable = "always"
+# value = 10
+
+# ============================================================================
+# HEADER RULES - Validates the entire first line
+# ============================================================================
+
+# Maximum header length (type + scope + subject)
+[rules.header-max-length]
+level = 2
+applicable = "always"
+value = 100
+
+# Minimum header length
+# [rules.header-min-length]
+# level = 2
+# applicable = "always"
+# value = 10
+
+# Header must not end with period
+[rules.header-full-stop]
+level = 2
+applicable = "never"
+value = "."
+
+# Header must be trimmed (no leading/trailing whitespace)
+[rules.header-trim]
+level = 2
+applicable = "always"
+value = []
+
+# ============================================================================
+# BODY RULES - Validates the commit body (after blank line)
+# ============================================================================
+
+# Body must have leading blank line
+[rules.body-leading-blank]
+level = 1
+applicable = "always"
+value = []
+
+# Maximum body line length
+[rules.body-max-line-length]
+level = 2
+applicable = "always"
+value = 100
+
+# Maximum body total length
+# [rules.body-max-length]
+# level = 2
+# applicable = "always"
+# value = 1000
+
+# ============================================================================
+# FOOTER RULES - Validates the commit footer (trailers)
+# ============================================================================
+
+# Footer must have leading blank line
+[rules.footer-leading-blank]
+level = 1
+applicable = "always"
+value = []
+
+# Maximum footer line length
+[rules.footer-max-line-length]
+level = 2
+applicable = "always"
+value = 100
+
+# ============================================================================
+# OTHER RULES
+# ============================================================================
+
+# Require signed-off-by trailer
+# [rules.signed-off-by]
+# level = 2
+# applicable = "always"
+# value = "Signed-off-by:"
+
+# Require specific trailer
+# [rules.trailer-exists]
+# level = 2
+# applicable = "always"
+# value = "Ticket"
+
+# ============================================================================
+# PARSER CONFIGURATION
+# ============================================================================
+
 [parser]
-# Regex pattern for parsing conventional commits
-# Default pattern matches: type(scope): subject
-pattern = "^(?P<type>\\w+)(?:\\((?P<scope>[^)]+)\\))?(?P<breaking>!)?:\\s(?P<subject>.*)$"
+# Regex pattern for parsing commit header
+# Default matches: type(scope)!: subject
+header_pattern = "^(?P<type>\\w+)(?:\\((?P<scope>[^)]+)\\))?(?P<breaking>!)?:\\s*(?P<subject>.*)$"
 
-# Map regex capture groups to commit fields
-[parser.correspondence]
-type = "type"
-scope = "scope"
-subject = "subject"
-breaking = "breaking"
-
-# Ignore patterns (commits matching these regex patterns will skip validation)
-ignores = [
-    # "Merge.*",
-    # "Revert.*",
-]
-
+# Note keywords that indicate breaking changes
+note_keywords = ["BREAKING CHANGE", "BREAKING-CHANGE"]

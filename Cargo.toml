@@ -1,9 +1,9 @@
 [package]
 name = "cargo-commitlint"
-version = "1.0.0"
+version = "2.0.0"
 edition = "2021"
 authors = ["Pegasus Heavy Industries LLC"]
-description = "A Rust-based commit message linter following Conventional Commits specification"
+description = "A Rust-based commit message linter following Conventional Commits specification, compatible with commitlint"
 license = "MIT"
 repository = "https://github.com/pegasusheavy/cargo-commitlint"
 homepage = "https://pegasusheavy.github.io/cargo-commitlint"
@@ -22,7 +22,7 @@ categories = [
 ]
 exclude = [
     "/.github",
-    "/.cargo-husky",
+    "/.commitlint",
     "/.cursor",
     "/docs",
     "/.gitignore",
@@ -32,6 +32,7 @@ exclude = [
     "/llms.txt",
     "/ai.txt",
 ]
+build = "build.rs"
 
 [[bin]]
 name = "cargo-commitlint"
@@ -42,11 +43,34 @@ clap = { version = "4.5", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 toml = "0.9"
+serde_yaml = "0.9"
 regex = "1.10"
 anyhow = "1.0"
 thiserror = "2.0"
 dirs = "6.0"
 which = "8.0"
+colored = "3.0"
+git2 = "0.20"
+glob = "0.3"
+unicode-segmentation = "1.12"
+atty = "0.2"
 
 [dev-dependencies]
-cargo-husky = { version = "1.5", default-features = false, features = ["user-hooks", "precommit-hook", "prepush-hook"] }
+tempfile = "3.14"
+
+# Configuration for cargo-commitlint auto-installation
+# When cargo-commitlint is used as a dev-dependency, it automatically installs
+# git hooks on build. Configure behavior here:
+[package.metadata.commitlint]
+# Set to true to disable automatic hook installation
+# no-install = false
+
+# Use user-hooks mode (creates .commitlint/hooks/ directory)
+# This is useful when you want to commit hooks to the repo
+user-hooks = true
+
+# Optional: run cargo fmt --check before commit
+# run-cargo-fmt = true
+
+# Optional: run cargo clippy before commit
+# run-cargo-clippy = true
