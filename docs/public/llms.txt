@@ -1,0 +1,50 @@
+# cargo-commitlint
+
+> A Rust-based commit message linter following the Conventional Commits specification.
+
+cargo-commitlint validates commit messages against the Conventional Commits specification, similar to Node.js's commitlint but written entirely in Rust for the Rust ecosystem. It supports configurable rules via TOML, git hook integration (both built-in and via cargo-husky), customizable validation for type, scope, subject, body, and footer, regex-based parsing, and ignore patterns for skipping validation.
+
+## Links
+
+- [Documentation](https://pegasusheavy.github.io/cargo-commitlint/)
+- [GitHub Repository](https://github.com/pegasusheavy/cargo-commitlint)
+- [Crates.io Package](https://crates.io/crates/cargo-commitlint)
+
+## Key Features
+
+- Validates commit messages against the Conventional Commits specification
+- Configurable via TOML (`commitlint.toml` or `.commitlint.toml`)
+- Git hook integration via cargo-husky or built-in installer
+- Supports all standard Conventional Commit types (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)
+- Customizable rules for type, scope, subject, body, and footer
+- Regex-based commit message parsing with configurable patterns
+- Ignore patterns for skipping validation on specific commits
+- Available as a cargo subcommand (`cargo commitlint`)
+
+## Installation
+
+```bash
+# From crates.io
+cargo install cargo-commitlint
+
+# From source
+git clone https://github.com/pegasusheavy/cargo-commitlint.git
+cd cargo-commitlint
+cargo install --path .
+```
+
+## Quick Start
+
+```bash
+# Install the git commit-msg hook
+cargo commitlint install
+
+# Validate a commit message directly
+cargo commitlint check --message "feat: add new feature"
+
+# Validate from stdin
+echo "feat: add new feature" | cargo commitlint check
+
+# Uninstall the hook
+cargo commitlint uninstall
+```
