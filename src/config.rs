@@ -224,4 +224,3 @@ impl Config {
         Ok(Config::default())
     }
 }
-

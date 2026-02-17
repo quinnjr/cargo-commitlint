@@ -13,8 +13,7 @@ impl HookInstaller {
 
         // Create hooks directory if it doesn't exist
         if !hooks_dir.exists() {
-            fs::create_dir_all(&hooks_dir)
-                .context("Failed to create .git/hooks directory")?;
+            fs::create_dir_all(&hooks_dir).context("Failed to create .git/hooks directory")?;
         }
 
         // Find cargo-commitlint binary
@@ -24,8 +23,7 @@ impl HookInstaller {
         let hook_path = hooks_dir.join("commit-msg");
         let hook_content = Self::generate_hook_script(&binary_path);
 
-        fs::write(&hook_path, hook_content)
-            .context("Failed to write commit-msg hook")?;
+        fs::write(&hook_path, hook_content).context("Failed to write commit-msg hook")?;
 
         // Make hook executable
         #[cfg(unix)]
@@ -36,7 +34,10 @@ impl HookInstaller {
             fs::set_permissions(&hook_path, perms)?;
         }
 
-        println!("✓ Git hook installed successfully at {}", hook_path.display());
+        println!(
+            "✓ Git hook installed successfully at {}",
+            hook_path.display()
+        );
         println!("  Commit messages will now be validated using cargo-commitlint");
 
         Ok(())
@@ -92,19 +93,24 @@ impl HookInstaller {
             .output()?;
 
         if output.status.success() {
-            let workspace_root = String::from_utf8(output.stdout)?
-                .trim()
-                .to_string();
-            let workspace_path = Path::new(&workspace_root).parent()
+            let workspace_root = String::from_utf8(output.stdout)?.trim().to_string();
+            let workspace_path = Path::new(&workspace_root)
+                .parent()
                 .ok_or_else(|| anyhow::anyhow!("Invalid workspace path"))?;
 
             // Check target/release or target/debug
-            let release_path = workspace_path.join("target").join("release").join("cargo-commitlint");
+            let release_path = workspace_path
+                .join("target")
+                .join("release")
+                .join("cargo-commitlint");
             if release_path.exists() {
                 return Ok(release_path);
             }
 
-            let debug_path = workspace_path.join("target").join("debug").join("cargo-commitlint");
+            let debug_path = workspace_path
+                .join("target")
+                .join("debug")
+                .join("cargo-commitlint");
             if debug_path.exists() {
                 return Ok(debug_path);
             }
@@ -153,4 +159,3 @@ mod tests {
         assert!(script.contains("/usr/local/bin/cargo-commitlint"));
     }
 }
-

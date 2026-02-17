@@ -35,7 +35,10 @@ impl CommitMessage {
 
             // Footer starts with BREAKING CHANGE or a token like "Closes:", "Fixes:", etc.
             if line.starts_with("BREAKING CHANGE:")
-                || Regex::new(r"^[A-Z][a-z]+(?:-[A-Z][a-z]+)*:").unwrap().is_match(line) {
+                || Regex::new(r"^[A-Z][a-z]+(?:-[A-Z][a-z]+)*:")
+                    .unwrap()
+                    .is_match(line)
+            {
                 in_footer = true;
             }
 
@@ -70,13 +73,15 @@ impl CommitMessage {
         let re = Regex::new(pattern)?;
 
         if let Some(caps) = re.captures(&self.header) {
-            let r#type = caps.name("type")
+            let r#type = caps
+                .name("type")
                 .map(|m| m.as_str().to_string())
                 .ok_or_else(|| anyhow::anyhow!("Missing 'type' in commit message"))?;
 
             let scope = caps.name("scope").map(|m| m.as_str().to_string());
             let breaking = caps.name("breaking").is_some();
-            let subject = caps.name("subject")
+            let subject = caps
+                .name("subject")
                 .map(|m| m.as_str().to_string())
                 .ok_or_else(|| anyhow::anyhow!("Missing 'subject' in commit message"))?;
 
@@ -85,8 +90,13 @@ impl CommitMessage {
             if let Some(ref footer) = self.footer {
                 for line in footer.lines() {
                     if line.starts_with("BREAKING CHANGE:") {
-                        footer_map.insert("BREAKING CHANGE".to_string(),
-                            line.strip_prefix("BREAKING CHANGE:").unwrap_or("").trim().to_string());
+                        footer_map.insert(
+                            "BREAKING CHANGE".to_string(),
+                            line.strip_prefix("BREAKING CHANGE:")
+                                .unwrap_or("")
+                                .trim()
+                                .to_string(),
+                        );
                     } else if let Some((key, value)) = line.split_once(':') {
                         footer_map.insert(key.trim().to_string(), value.trim().to_string());
                     }
@@ -102,7 +112,11 @@ impl CommitMessage {
                 breaking: breaking || breaking_from_footer,
                 subject,
                 body: self.body.clone(),
-                footer: if footer_map.is_empty() { None } else { Some(footer_map) },
+                footer: if footer_map.is_empty() {
+                    None
+                } else {
+                    Some(footer_map)
+                },
             })
         } else {
             anyhow::bail!("Commit message does not match conventional commit format")
@@ -135,4 +149,3 @@ mod tests {
         assert_eq!(msg.body, Some("This is the body".to_string()));
     }
 }
-

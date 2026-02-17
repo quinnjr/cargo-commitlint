@@ -1,5 +1,5 @@
-use crate::config::Config;
 use crate::commit::{CommitMessage, ConventionalCommit};
+use crate::config::Config;
 use regex::Regex;
 use std::collections::HashSet;
 
@@ -23,9 +23,11 @@ impl Validator {
 
         // Check if commit should be ignored
         for ignore_pattern in &self.config.ignores {
-            if Regex::new(ignore_pattern).ok()
+            if Regex::new(ignore_pattern)
+                .ok()
                 .and_then(|re| Some(re.is_match(commit_msg)))
-                .unwrap_or(false) {
+                .unwrap_or(false)
+            {
                 return Ok(()); // Skip validation for ignored commits
             }
         }
@@ -110,10 +112,7 @@ impl Validator {
         if !self.validate_case(&commit.r#type, &self.config.rules.r#type.case) {
             errors.push(ValidationError {
                 rule: "type-case".to_string(),
-                message: format!(
-                    "type must be {}",
-                    self.config.rules.r#type.case
-                ),
+                message: format!("type must be {}", self.config.rules.r#type.case),
             });
         }
 
@@ -135,10 +134,7 @@ impl Validator {
             if !self.validate_case(scope, &self.config.rules.scope.case) {
                 errors.push(ValidationError {
                     rule: "scope-case".to_string(),
-                    message: format!(
-                        "scope must be {}",
-                        self.config.rules.scope.case
-                    ),
+                    message: format!("scope must be {}", self.config.rules.scope.case),
                 });
             }
         }
@@ -173,7 +169,10 @@ impl Validator {
 
         // Validate subject full stop
         if !self.config.rules.subject_full_stop.is_empty() {
-            if commit.subject.ends_with(&self.config.rules.subject_full_stop) {
+            if commit
+                .subject
+                .ends_with(&self.config.rules.subject_full_stop)
+            {
                 errors.push(ValidationError {
                     rule: "subject-full-stop".to_string(),
                     message: format!(
@@ -281,7 +280,10 @@ impl Validator {
             "start-case" => {
                 // Start Case: Each Word Starts With Capital
                 subject.split_whitespace().all(|word| {
-                    word.chars().next().map(|c| c.is_uppercase()).unwrap_or(false)
+                    word.chars()
+                        .next()
+                        .map(|c| c.is_uppercase())
+                        .unwrap_or(false)
                 })
             }
             _ => true, // Unknown case, skip validation
@@ -310,4 +312,3 @@ mod tests {
         assert!(result.is_err());
     }
 }
-
