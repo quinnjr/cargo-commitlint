@@ -4,11 +4,18 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   dependabot:
     name: Dependabot Auto-merge
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Enable auto-merge for Dependabot PRs
         run: gh pr merge --auto --squash "${{ github.event.pull_request.number }}"
