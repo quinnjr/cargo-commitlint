@@ -1,5 +1,5 @@
-mod config;
 mod commit;
+mod config;
 mod hook;
 mod validator;
 
@@ -10,7 +10,9 @@ use std::process;
 #[derive(Parser)]
 #[command(name = "cargo-commitlint")]
 #[command(bin_name = "cargo commitlint")]
-#[command(about = "A Rust-based commit message linter following Conventional Commits specification")]
+#[command(
+    about = "A Rust-based commit message linter following Conventional Commits specification"
+)]
 #[command(version)]
 struct Cli {
     #[command(subcommand)]
@@ -36,24 +38,18 @@ enum Commands {
 
 fn main() {
     // Filter out "commitlint" argument if passed by cargo
-    let args: Vec<String> = std::env::args()
-        .filter(|arg| arg != "commitlint")
-        .collect();
+    let args: Vec<String> = std::env::args().filter(|arg| arg != "commitlint").collect();
 
     let cli = Cli::parse_from(args);
 
     let result = match cli.command {
         Commands::Install => {
-            hook::HookInstaller::install()
-                .map_err(|e| format!("Failed to install hook: {}", e))
+            hook::HookInstaller::install().map_err(|e| format!("Failed to install hook: {}", e))
         }
         Commands::Uninstall => {
-            hook::HookInstaller::uninstall()
-                .map_err(|e| format!("Failed to uninstall hook: {}", e))
+            hook::HookInstaller::uninstall().map_err(|e| format!("Failed to uninstall hook: {}", e))
         }
-        Commands::Check { message, config } => {
-            validate_commit_message(message, config)
-        }
+        Commands::Check { message, config } => validate_commit_message(message, config),
     };
 
     match result {
