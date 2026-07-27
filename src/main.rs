@@ -14,7 +14,7 @@ use clap::{Parser, Subcommand};
 use colored::Colorize;
 use config::Config;
 use format::{Formatter, OutputFormat};
-use std::io::{self, Read};
+use std::io::{self, IsTerminal, Read};
 use std::path::PathBuf;
 use std::process;
 use validator::Validator;
@@ -376,7 +376,7 @@ fn get_commit_messages(opts: &CheckOptions, _config: &Config) -> Result<Vec<Stri
     }
 
     // Read from stdin
-    if atty::is(atty::Stream::Stdin) {
+    if io::stdin().is_terminal() {
         // No stdin input available
         return Err(
             "No commit message provided. Use --message, --edit, or pipe a message to stdin."

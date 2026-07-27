@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.0] - 2026-07-27
 
+### Changed
+
+- Dropped the `atty` dependency in favour of `std::io::IsTerminal`. `atty` is
+  unmaintained and carried two RUSTSEC advisories (RUSTSEC-2024-0375 and the
+  RUSTSEC-2021-0145 unaligned read); both are gone from the tree. Terminal
+  detection behaves identically -- piped input is still read, and an interactive
+  terminal still reports that no commit message was provided.
+- Declared `rust-version = "1.80"`. That floor was already imposed by
+  dependencies (`colored` 1.80, `clap` 1.74), so this documents the existing
+  requirement rather than raising it.
+
 ### Fixed
 
 - The shipped `commitlint.example.toml` could not be loaded at all. Rules that

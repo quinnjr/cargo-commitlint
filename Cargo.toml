@@ -2,6 +2,9 @@
 name = "cargo-commitlint"
 version = "2.1.0"
 edition = "2021"
+# Effective floor already imposed by dependencies (colored 1.80, clap 1.74);
+# std::io::IsTerminal needs 1.70, so it does not raise this.
+rust-version = "1.80"
 authors = ["Pegasus Heavy Industries LLC"]
 description = "A Rust-based commit message linter following Conventional Commits specification, compatible with commitlint"
 license = "MIT"
@@ -55,7 +58,6 @@ colored = "3.0"
 git2 = { version = "0.20", default-features = false }
 glob = "0.3"
 unicode-segmentation = "1.12"
-atty = "0.2"
 
 [dev-dependencies]
 tempfile = "3.14"
