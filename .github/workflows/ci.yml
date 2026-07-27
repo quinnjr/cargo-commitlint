@@ -76,7 +76,11 @@ jobs:
             ${{ runner.os }}-cargo-security-
 
       - name: Install cargo-audit
-        run: cargo install cargo-audit
+        # The cargo cache above includes ~/.cargo/bin, so on a cache hit the
+        # binary is already restored and a plain `cargo install` fails with
+        # "binary `cargo-audit` already exists in destination". Only build it
+        # when it is actually missing.
+        run: command -v cargo-audit >/dev/null 2>&1 || cargo install cargo-audit
 
       - name: Run security audit
         run: cargo audit
