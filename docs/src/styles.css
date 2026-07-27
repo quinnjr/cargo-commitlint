@@ -3,4 +3,3 @@
 @import "tailwindcss";
 @import "tailswatch/themes/oxide";
 
-@source "../node_modules/@quinnjr/ngx-tailwindcss/**/*.{js,mjs}";
