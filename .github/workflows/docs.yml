@@ -44,6 +44,15 @@ jobs:
         working-directory: ./docs
         run: pnpm run build
 
+      # GitHub Pages serves static files, so a client-routed path like
+      # /configuration has no file on disk and would 404 on direct
+      # navigation. Pages serves 404.html for unmatched paths, so shipping
+      # a copy of index.html there lets the Angular router resolve the
+      # route client-side instead.
+      - name: Add SPA fallback for client-side routes
+        working-directory: ./docs
+        run: cp dist/docs/browser/index.html dist/docs/browser/404.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
