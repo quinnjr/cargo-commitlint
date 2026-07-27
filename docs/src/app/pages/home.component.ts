@@ -36,7 +36,7 @@ import { SEOService } from '../services/seo.service';
 
         <div class="bg-surface border border-border rounded-lg p-6">
           <h3 class="text-xl font-semibold mb-3 text-foreground">🔗 Git Integration</h3>
-          <p class="text-foreground/80">Seamless integration with cargo-husky. Automatic git hook installation.</p>
+          <p class="text-foreground/80">Automatic git hook installation via the build script, or install it by hand.</p>
         </div>
       </div>
 
@@ -45,7 +45,7 @@ import { SEOService } from '../services/seo.service';
         <ul class="list-disc list-inside space-y-2 text-foreground/80">
           <li>✅ Validates commit messages against Conventional Commits specification</li>
           <li>✅ Configurable via TOML (similar to commitlint)</li>
-          <li>✅ Git hook integration (similar to cargo-husky)</li>
+          <li>✅ Git hook installation, with a build script for dev-dependency use</li>
           <li>✅ Supports all standard Conventional Commit types</li>
           <li>✅ Customizable rules for type, scope, subject, body, and footer</li>
           <li>✅ Regex-based commit message parsing</li>
@@ -83,7 +83,7 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.seo.updateSEO({
       title: 'cargo-commitlint - Rust-based Commit Message Linter',
-      description: 'A Rust-based commit message linter following the Conventional Commits specification. Configurable via TOML, integrates with cargo-husky, and validates commit messages for Rust projects.',
+      description: 'A Rust-based commit message linter following the Conventional Commits specification. Configurable via TOML, JSON or YAML, with a full commitlint rule set and git hook installation for Rust projects.',
       keywords: 'rust, commitlint, conventional commits, git hooks, cargo, rust tooling, commit message validation, code quality, developer tools',
       path: ''
     });

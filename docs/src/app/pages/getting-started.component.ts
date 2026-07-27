@@ -30,29 +30,28 @@ cargo install --path .</code></pre>
       <div class="bg-surface border border-border rounded-lg p-6 mb-6">
         <h2 class="text-2xl font-semibold mb-4 text-foreground">Install Git Hooks</h2>
         <div class="text-foreground/80">
-          <p class="mb-4">After installation, <code class="bg-surface-muted px-2 py-1 rounded">cargo commitlint</code> is available as a cargo subcommand. It integrates seamlessly with cargo-husky for git hook management.</p>
+          <p class="mb-4">After installation, <code class="bg-surface-muted px-2 py-1 rounded">cargo commitlint</code> is available as a cargo subcommand and can install its own git hook.</p>
 
-          <h3 class="text-xl font-semibold mb-4 text-foreground">Using cargo-husky (Recommended)</h3>
-          <p class="mb-4">Add cargo-husky to your Cargo.toml:</p>
+          <h3 class="text-xl font-semibold mb-4 text-foreground">Built-in Installer</h3>
+          <p class="mb-4">Install the commit-msg hook into the current repository:</p>
           <div class="bg-surface-elevated border border-border rounded-lg p-4 mb-4">
-            <pre class="text-sm overflow-x-auto"><code>[dev-dependencies]
-cargo-husky = {{ '{' }} version = "1.5", default-features = false, features = ["user-hooks", "precommit-hook", "prepush-hook"] {{ '}' }}</code></pre>
-          </div>
-          <p class="mb-4">Then run:</p>
-          <div class="bg-surface-elevated border border-border rounded-lg p-4 mb-4">
-            <pre class="text-sm overflow-x-auto"><code>cargo test</code></pre>
-          </div>
-          <p class="mb-4">This will automatically install all git hooks defined in <code class="bg-surface-muted px-2 py-1 rounded">.cargo-husky/hooks/</code></p>
-
-          <h3 class="text-xl font-semibold mb-4 mt-6 text-foreground">Using Built-in Installer</h3>
-          <p class="mb-4">Alternatively, use <code class="bg-surface-muted px-2 py-1 rounded">cargo commitlint</code>'s built-in installer:</p>
-          <div class="bg-surface-elevated border border-border rounded-lg p-4">
             <pre class="text-sm overflow-x-auto"><code>cargo commitlint install</code></pre>
           </div>
-          <p class="mb-4 mt-4">This will install a git hook that automatically validates commit messages when you commit.</p>
+          <p class="mb-4">Pass <code class="bg-surface-muted px-2 py-1 rounded">--force</code> to replace a hook that is already there, and <code class="bg-surface-muted px-2 py-1 rounded">cargo commitlint uninstall</code> to remove it.</p>
+
+          <h3 class="text-xl font-semibold mb-4 mt-6 text-foreground">As a dev-dependency</h3>
+          <p class="mb-4">Add it to your Cargo.toml and the build script installs the hook for you:</p>
+          <div class="bg-surface-elevated border border-border rounded-lg p-4 mb-4">
+            <pre class="text-sm overflow-x-auto"><code>[dev-dependencies]
+cargo-commitlint = "2"
+
+[package.metadata.commitlint]
+user-hooks = true</code></pre>
+          </div>
+          <p class="mb-4"><code class="bg-surface-muted px-2 py-1 rounded">user-hooks = true</code> writes the hook to <code class="bg-surface-muted px-2 py-1 rounded">.commitlint/hooks/</code> so it can be committed and shared. Point git at it once with <code class="bg-surface-muted px-2 py-1 rounded">git config core.hooksPath .commitlint/hooks</code>. Set <code class="bg-surface-muted px-2 py-1 rounded">no-install = true</code> to disable automatic installation, or <code class="bg-surface-muted px-2 py-1 rounded">COMMITLINT_SKIP=1</code> to bypass the hook for one commit.</p>
 
           <h3 class="text-xl font-semibold mb-4 mt-6 text-foreground">Hook Behavior Without a Binary</h3>
-          <p class="mb-4"><strong>The commit-msg hook only validates once a cargo-commitlint binary exists.</strong> Both the cargo-husky hook and the installed hook look for the binary (in <code class="bg-surface-muted px-2 py-1 rounded">target/release/</code>, <code class="bg-surface-muted px-2 py-1 rounded">target/debug/</code>, then on your <code class="bg-surface-muted px-2 py-1 rounded">PATH</code>). If none is found, the hook prints a warning to stderr and exits successfully, so the commit is accepted <em>without any validation</em>.</p>
+          <p class="mb-4"><strong>The commit-msg hook only validates once a cargo-commitlint binary exists.</strong> The installed hook looks for the binary (in <code class="bg-surface-muted px-2 py-1 rounded">target/release/</code>, <code class="bg-surface-muted px-2 py-1 rounded">target/debug/</code>, then on your <code class="bg-surface-muted px-2 py-1 rounded">PATH</code>). If none is found, the hook prints a warning to stderr and exits successfully, so the commit is accepted <em>without any validation</em>.</p>
           <p class="mb-4">On a fresh clone, build or install it once so the gate is actually active:</p>
           <div class="bg-surface-elevated border border-border rounded-lg p-4">
             <pre class="text-sm overflow-x-auto"><code># from the project root
@@ -114,7 +113,7 @@ export class GettingStartedComponent implements OnInit {
     this.seo.updateSEO({
       title: 'Getting Started - cargo-commitlint',
       description: 'Learn how to install and set up cargo-commitlint in your Rust project. Includes installation instructions, git hook setup, and basic usage examples.',
-      keywords: 'cargo-commitlint installation, rust commitlint setup, git hooks rust, cargo-husky setup, conventional commits rust',
+      keywords: 'cargo-commitlint installation, rust commitlint setup, git hooks rust, conventional commits rust',
       path: 'getting-started'
     });
   }

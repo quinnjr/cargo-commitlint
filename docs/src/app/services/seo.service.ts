@@ -25,7 +25,7 @@ export interface SEOData {
 export class SEOService {
   private baseUrl = 'https://quinnjr.github.io/cargo-commitlint';
   private defaultTitle = 'cargo-commitlint - Rust-based Commit Message Linter';
-  private defaultDescription = 'A Rust-based commit message linter following the Conventional Commits specification. Configurable via TOML, integrates with cargo-husky, and validates commit messages for Rust projects.';
+  private defaultDescription = 'A Rust-based commit message linter following the Conventional Commits specification. Configurable via TOML, JSON or YAML, with a full commitlint rule set and git hook installation for Rust projects.';
   private defaultKeywords = 'rust, commitlint, conventional commits, git hooks, cargo, rust tooling, commit message validation, code quality, developer tools';
 
   // Injected rather than using the global `document`, which does not exist

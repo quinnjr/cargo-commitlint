@@ -10,7 +10,7 @@ Language: Rust
 # Key Features
 - Validates commit messages against Conventional Commits specification
 - Configurable via TOML (similar to commitlint)
-- Git hook integration (similar to cargo-husky)
+- Git hook installation via the built-in installer or build script
 - Supports all standard Conventional Commit types
 - Customizable rules for type, scope, subject, body, and footer
 - Regex-based commit message parsing
@@ -68,7 +68,7 @@ Pre-push: Runs cargo test
 Commit-msg: Validates commit messages using cargo-commitlint
 
 # Integration
-- Works with cargo-husky for comprehensive git hook management
+- Installs its own commit-msg hook; use [package.metadata.commitlint] to configure
 - Designed for Rust projects
 - Compatible with Conventional Commits specification
 

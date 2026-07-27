@@ -66,7 +66,7 @@ cargo clippy</code></pre>
       <div class="bg-surface border border-border rounded-lg p-6 mb-6">
         <h2 class="text-2xl font-semibold mb-4 text-foreground">Git Hooks</h2>
         <div class="text-foreground/80">
-          <p class="mb-4 text-sm">This project uses cargo-husky for git hooks. The hooks are automatically installed when you run <code class="bg-surface-muted px-2 py-1 rounded">cargo test</code>.</p>
+          <p class="mb-4 text-sm">This project installs its commit-msg hook through the build script into <code class="bg-surface-muted px-2 py-1 rounded">.commitlint/hooks/</code>. Point git at it once with <code class="bg-surface-muted px-2 py-1 rounded">git config core.hooksPath .commitlint/hooks</code>.</p>
           <p class="mb-4 text-sm">Available hooks:</p>
           <ul class="list-disc list-inside space-y-1 text-sm">
             <li><strong>pre-commit</strong>: Runs cargo fmt --check and cargo clippy</li>

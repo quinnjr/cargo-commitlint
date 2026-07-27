@@ -2,7 +2,7 @@
 
 > A Rust-based commit message linter following the Conventional Commits specification.
 
-cargo-commitlint validates commit messages against the Conventional Commits specification, similar to Node.js's commitlint but written entirely in Rust for the Rust ecosystem. It supports configurable rules via TOML, git hook integration (both built-in and via cargo-husky), customizable validation for type, scope, subject, body, and footer, regex-based parsing, and ignore patterns for skipping validation.
+cargo-commitlint validates commit messages against the Conventional Commits specification, similar to Node.js's commitlint but written entirely in Rust for the Rust ecosystem. It supports the full commitlint rule set with severity levels, configuration via TOML, JSON or YAML, git hook installation, linting of git history, machine-readable output, and ignore patterns for skipping validation.
 
 ## Links
 
@@ -14,7 +14,7 @@ cargo-commitlint validates commit messages against the Conventional Commits spec
 
 - Validates commit messages against the Conventional Commits specification
 - Configurable via TOML (`commitlint.toml` or `.commitlint.toml`)
-- Git hook integration via cargo-husky or built-in installer
+- Git hook installation via the built-in installer or the build script
 - Supports all standard Conventional Commit types (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)
 - Customizable rules for type, scope, subject, body, and footer
 - Regex-based commit message parsing with configurable patterns
