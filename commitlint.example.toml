@@ -1,7 +1,41 @@
 # Example configuration for cargo-commitlint
 # Copy this file to commitlint.toml or .commitlint.toml in your project root
+#
+# NOTE: top-level keys (like `ignores`) must appear before any [table]
+# headers, and scalar rule keys must sit directly under [rules], before
+# the [rules.type] / [rules.scope] sub-tables — otherwise TOML assigns
+# them to the wrong table.
+
+# Ignore patterns (commits matching these regex patterns will skip validation)
+ignores = [
+    # "Merge.*",
+    # "Revert.*",
+]
 
 [rules]
+# Subject validation
+# Case requirements for subject (sentence-case, lowercase, uppercase, start-case)
+subject_case = ["sentence-case"]
+# Whether subject can be empty
+subject_empty = false
+# Full stop character that should not appear at the end of subject
+subject_full_stop = "."
+
+# Header validation
+header_max_length = 72
+header_min_length = 0
+
+# Body validation
+body_leading_blank = true
+body_max_line_length = 100
+
+# Footer validation
+footer_leading_blank = true
+footer_max_line_length = 100
+
+# Whether breaking-change commits (`!` marker or `BREAKING CHANGE:` footer) are allowed
+allow_breaking = true
+
 # Type validation
 [rules.type]
 # Allowed commit types (empty means all types are allowed)
@@ -28,26 +62,6 @@ enum = []
 # Case requirement for scope
 case = "lowercase"
 
-# Subject validation
-# Case requirements for subject (sentence-case, lowercase, uppercase, start-case)
-subject_case = ["sentence-case"]
-# Whether subject can be empty
-subject_empty = false
-# Full stop character that should not appear at the end of subject
-subject_full_stop = "."
-
-# Header validation
-header_max_length = 72
-header_min_length = 0
-
-# Body validation
-body_leading_blank = true
-body_max_line_length = 100
-
-# Footer validation
-footer_leading_blank = true
-footer_max_line_length = 100
-
 # Parser configuration
 [parser]
 # Regex pattern for parsing conventional commits
@@ -60,10 +74,3 @@ type = "type"
 scope = "scope"
 subject = "subject"
 breaking = "breaking"
-
-# Ignore patterns (commits matching these regex patterns will skip validation)
-ignores = [
-    # "Merge.*",
-    # "Revert.*",
-]
-

@@ -170,7 +170,7 @@ export class ConventionalCommitsComponent implements OnInit {
       title: 'Conventional Commits - cargo-commitlint',
       description: 'Learn about the Conventional Commits specification and how cargo-commitlint enforces it. Understand commit types, formats, and breaking changes.',
       keywords: 'conventional commits, commit message format, conventional commits specification, commit types, breaking changes',
-      canonicalUrl: 'https://pegasusheavy.github.io/cargo-commitlint/conventional-commits'
+      path: 'conventional-commits'
     });
   }
 }

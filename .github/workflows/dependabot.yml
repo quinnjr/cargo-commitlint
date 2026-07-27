@@ -4,6 +4,9 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+# Dependabot-authored PRs get a read-only GITHUB_TOKEN by default; these
+# permissions are required for `gh pr merge` to work. Note: repo Settings ->
+# "Allow auto-merge" must also be enabled for `--auto` to take effect.
 permissions:
   contents: write
   pull-requests: write
@@ -17,7 +20,18 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Only patch and minor bumps are auto-merged. Major-version bumps are
+      # intentionally left for manual review: they can carry breaking changes,
+      # and release.yml publishes to crates.io from a tag without further
+      # human intervention.
       - name: Enable auto-merge for Dependabot PRs
+        if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
         # Try to enable auto-merge (used when required status checks are still
         # pending). If auto-merge is not available because the branch has no
         # protection rules / no pending required checks, fall back to merging

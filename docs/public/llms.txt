@@ -6,8 +6,8 @@ cargo-commitlint validates commit messages against the Conventional Commits spec
 
 ## Links
 
-- [Documentation](https://pegasusheavy.github.io/cargo-commitlint/)
-- [GitHub Repository](https://github.com/pegasusheavy/cargo-commitlint)
+- [Documentation](https://quinnjr.github.io/cargo-commitlint/)
+- [GitHub Repository](https://github.com/quinnjr/cargo-commitlint)
 - [Crates.io Package](https://crates.io/crates/cargo-commitlint)
 
 ## Key Features
@@ -28,7 +28,7 @@ cargo-commitlint validates commit messages against the Conventional Commits spec
 cargo install cargo-commitlint
 
 # From source
-git clone https://github.com/pegasusheavy/cargo-commitlint.git
+git clone https://github.com/quinnjr/cargo-commitlint.git
 cd cargo-commitlint
 cargo install --path .
 ```

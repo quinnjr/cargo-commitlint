@@ -114,7 +114,7 @@ export class ContributingComponent implements OnInit {
       title: 'Contributing - cargo-commitlint',
       description: 'Learn how to contribute to cargo-commitlint. Includes development setup, git hooks, commit message guidelines, and pull request process.',
       keywords: 'contribute to cargo-commitlint, rust open source, cargo-commitlint development, pull request guidelines',
-      canonicalUrl: 'https://pegasusheavy.github.io/cargo-commitlint/contributing'
+      path: 'contributing'
     });
   }
 }

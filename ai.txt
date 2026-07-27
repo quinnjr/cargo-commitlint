@@ -69,6 +69,6 @@ Comprehensive documentation available at the project's documentation site, cover
 rust, commitlint, conventional commits, git hooks, cargo, rust tooling, commit message validation, code quality, developer tools, rust development, git workflow, commit standards
 
 # Contact and Support
-Repository: https://github.com/pegasusheavy/cargo-commitlint
+Repository: https://github.com/quinnjr/cargo-commitlint
 License: MIT OR Apache-2.0
 

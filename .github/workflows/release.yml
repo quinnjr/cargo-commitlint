@@ -92,6 +92,8 @@ jobs:
 
       - name: Download all artifacts
         uses: actions/download-artifact@v7
+        with:
+          merge-multiple: true
 
       - name: Create Release
         uses: softprops/action-gh-release@v3
@@ -100,6 +102,7 @@ jobs:
             cargo-commitlint-linux-x86_64.tar.gz
             cargo-commitlint-windows-x86_64.zip
             cargo-commitlint-macos-x86_64.tar.gz
+          fail_on_unmatched_files: true
           generate_release_notes: true
           draft: false
           prerelease: false

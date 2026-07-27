@@ -29,5 +29,5 @@ User-agent: Applebot-Extended
 Allow: /
 
 # Sitemap
-Sitemap: https://pegasusheavy.github.io/cargo-commitlint/sitemap.xml
+Sitemap: https://quinnjr.github.io/cargo-commitlint/sitemap.xml
 

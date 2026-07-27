@@ -16,7 +16,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
    ```
 3. **Add the upstream remote**:
    ```bash
-   git remote add upstream https://github.com/pegasusheavy/cargo-commitlint.git
+   git remote add upstream https://github.com/quinnjr/cargo-commitlint.git
    ```
 
 ## Development Setup
@@ -186,7 +186,7 @@ When requesting features, please use the [feature request template](.github/ISSU
 For questions, use the [question template](.github/ISSUE_TEMPLATE/question.yml) or check:
 
 - [README.md](README.md)
-- [Documentation](https://pegasusheavy.github.io/cargo-commitlint/)
+- [Documentation](https://quinnjr.github.io/cargo-commitlint/)
 - Existing issues and discussions
 
 ## Release Process

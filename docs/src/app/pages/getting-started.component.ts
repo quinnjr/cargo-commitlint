@@ -15,7 +15,7 @@ import { SEOService } from '../services/seo.service';
         <div class="text-foreground/80">
           <h3 class="text-xl font-semibold mb-4 text-foreground">From Source</h3>
           <div class="bg-surface-elevated border border-border rounded-lg p-4 mb-4">
-            <pre class="text-sm overflow-x-auto"><code>git clone https://github.com/pegasusheavy/cargo-commitlint.git
+            <pre class="text-sm overflow-x-auto"><code>git clone https://github.com/quinnjr/cargo-commitlint.git
 cd cargo-commitlint
 cargo install --path .</code></pre>
           </div>
@@ -50,6 +50,17 @@ cargo-husky = {{ '{' }} version = "1.5", default-features = false, features = ["
             <pre class="text-sm overflow-x-auto"><code>cargo commitlint install</code></pre>
           </div>
           <p class="mb-4 mt-4">This will install a git hook that automatically validates commit messages when you commit.</p>
+
+          <h3 class="text-xl font-semibold mb-4 mt-6 text-foreground">Hook Behavior Without a Binary</h3>
+          <p class="mb-4"><strong>The commit-msg hook only validates once a cargo-commitlint binary exists.</strong> Both the cargo-husky hook and the installed hook look for the binary (in <code class="bg-surface-muted px-2 py-1 rounded">target/release/</code>, <code class="bg-surface-muted px-2 py-1 rounded">target/debug/</code>, then on your <code class="bg-surface-muted px-2 py-1 rounded">PATH</code>). If none is found, the hook prints a warning to stderr and exits successfully, so the commit is accepted <em>without any validation</em>.</p>
+          <p class="mb-4">On a fresh clone, build or install it once so the gate is actually active:</p>
+          <div class="bg-surface-elevated border border-border rounded-lg p-4">
+            <pre class="text-sm overflow-x-auto"><code># from the project root
+cargo build --release
+
+# or install it globally
+cargo install cargo-commitlint</code></pre>
+          </div>
         </div>
       </div>
 
@@ -104,7 +115,7 @@ export class GettingStartedComponent implements OnInit {
       title: 'Getting Started - cargo-commitlint',
       description: 'Learn how to install and set up cargo-commitlint in your Rust project. Includes installation instructions, git hook setup, and basic usage examples.',
       keywords: 'cargo-commitlint installation, rust commitlint setup, git hooks rust, cargo-husky setup, conventional commits rust',
-      canonicalUrl: 'https://pegasusheavy.github.io/cargo-commitlint/getting-started'
+      path: 'getting-started'
     });
   }
 }
