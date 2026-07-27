@@ -71,23 +71,23 @@ Closes #123</code></pre>
               <div class="bg-surface-elevated border border-border rounded-lg p-4">
                 <code class="text-sm">invalid: bad commit type</code>
               </div>
-              <p class="text-sm text-foreground/60 mt-2">Error: Type 'invalid' is not in the allowed enum</p>
+              <p class="text-sm text-foreground/60 mt-2">Error: type-enum — 'invalid' is not one of the allowed types</p>
             </div>
 
             <div>
               <span class="inline-block bg-error-500 text-white px-2 py-1 rounded text-xs mb-2">Invalid</span>
               <div class="bg-surface-elevated border border-border rounded-lg p-4">
-                <code class="text-sm">feat:Missing space after colon</code>
+                <code class="text-sm">Feat: capitalised type</code>
               </div>
-              <p class="text-sm text-foreground/60 mt-2">Error: Missing space after colon</p>
+              <p class="text-sm text-foreground/60 mt-2">Error: type-case — types must be lower-case</p>
             </div>
 
             <div>
               <span class="inline-block bg-error-500 text-white px-2 py-1 rounded text-xs mb-2">Invalid</span>
               <div class="bg-surface-elevated border border-border rounded-lg p-4">
-                <code class="text-sm">feat: subject too long and exceeds the maximum length limit of 72 characters</code>
+                <code class="text-sm">feat: ends with a period.</code>
               </div>
-              <p class="text-sm text-foreground/60 mt-2">Error: Header exceeds maximum length of 72 characters</p>
+              <p class="text-sm text-foreground/60 mt-2">Error: subject-full-stop — the subject must not end with a period</p>
             </div>
           </div>
         </div>

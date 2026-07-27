@@ -1,0 +1,5 @@
+# Ignore everything except hooks
+*
+!.gitignore
+!hooks/
+!hooks/*

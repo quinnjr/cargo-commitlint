@@ -13,9 +13,9 @@ import { SEOService } from '../services/seo.service';
         <div class="text-foreground/80">
           <p class="mb-4">cargo-commitlint looks for configuration in the following locations (in order):</p>
           <ul class="list-disc list-inside space-y-2 mb-4">
-            <li><code class="bg-surface-muted px-2 py-1 rounded">commitlint.toml</code> in the project root</li>
-            <li><code class="bg-surface-muted px-2 py-1 rounded">.commitlint.toml</code> in the project root</li>
-            <li><code class="bg-surface-muted px-2 py-1 rounded">.cargo/commitlint.toml</code> in the project root</li>
+            <li><code class="bg-surface-muted px-2 py-1 rounded">commitlint.toml</code> or <code class="bg-surface-muted px-2 py-1 rounded">.commitlint.toml</code></li>
+            <li><code class="bg-surface-muted px-2 py-1 rounded">.commitlintrc.toml</code>, <code class="bg-surface-muted px-2 py-1 rounded">.commitlintrc.json</code>, <code class="bg-surface-muted px-2 py-1 rounded">.commitlintrc.yaml</code> or <code class="bg-surface-muted px-2 py-1 rounded">.commitlintrc.yml</code></li>
+            <li><code class="bg-surface-muted px-2 py-1 rounded">.cargo/commitlint.toml</code></li>
           </ul>
           <p>If no configuration file is found, default settings are used.</p>
         </div>
@@ -34,53 +34,58 @@ import { SEOService } from '../services/seo.service';
             <div>
               <div class="space-y-4">
                 <div>
-                  <h3 class="text-lg font-semibold mb-2 text-foreground">Type Rules</h3>
+                  <h3 class="text-lg font-semibold mb-2 text-foreground">Rule Shape</h3>
+                  <p class="mb-2 text-sm">Every rule is configured the same way:</p>
+                  <div class="bg-surface-elevated border border-border rounded-lg p-4 mb-2">
+                    <pre class="text-sm overflow-x-auto"><code>[rules.type-enum]
+level = 2             # 0 = disabled, 1 = warning, 2 = error
+applicable = "always" # or "never", which inverts the rule
+value = ["feat", "fix"]</code></pre>
+                  </div>
+                  <p class="text-sm"><code class="bg-surface-muted px-2 py-1 rounded">applicable = "never"</code> inverts the check, so <code class="bg-surface-muted px-2 py-1 rounded">type-empty</code> with <code class="bg-surface-muted px-2 py-1 rounded">never</code> means the type must not be empty. Omit <code class="bg-surface-muted px-2 py-1 rounded">value</code> when a rule takes none.</p>
+                </div>
+
+                <div>
+                  <h3 class="text-lg font-semibold mb-2 text-foreground">Type &amp; Scope</h3>
                   <ul class="list-disc list-inside space-y-1 text-sm">
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.type.enum</code> - List of allowed commit types (empty = all allowed)</li>
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.type.case</code> - Case requirement (lowercase, uppercase, camel-case, kebab-case, pascal-case, snake-case)</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">type-enum</code> - Allowed commit types</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">type-case</code> - Case requirement for the type</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">type-empty</code> - Whether the type may be empty</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">type-max-length / type-min-length</code> - Length bounds for the type</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">scope-enum</code> - Allowed scopes</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">scope-case</code> - Case requirement for the scope</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">scope-empty</code> - Whether the scope may be empty</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">scope-max-length / scope-min-length</code> - Length bounds for the scope</li>
                   </ul>
                 </div>
 
                 <div>
-                  <h3 class="text-lg font-semibold mb-2 text-foreground">Scope Rules</h3>
+                  <h3 class="text-lg font-semibold mb-2 text-foreground">Subject &amp; Header</h3>
                   <ul class="list-disc list-inside space-y-1 text-sm">
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.scope.enum</code> - List of allowed scopes (empty = all allowed)</li>
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.scope.case</code> - Case requirement for scope</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">subject-case</code> - Allowed case formats for the subject</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">subject-empty</code> - Whether the subject may be empty</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">subject-full-stop</code> - Trailing punctuation on the subject</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">subject-exclamation-mark</code> - The breaking-change ! marker</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">subject-max-length / subject-min-length</code> - Length bounds for the subject</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">header-max-length</code> - Maximum header length (default: 100)</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">header-min-length</code> - Minimum header length</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">header-case / header-full-stop / header-trim</code> - Header case, punctuation and whitespace</li>
                   </ul>
                 </div>
 
                 <div>
-                  <h3 class="text-lg font-semibold mb-2 text-foreground">Subject Rules</h3>
+                  <h3 class="text-lg font-semibold mb-2 text-foreground">Body, Footer &amp; Other</h3>
                   <ul class="list-disc list-inside space-y-1 text-sm">
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.subject_case</code> - List of allowed case formats (sentence-case, lowercase, uppercase, start-case)</li>
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.subject_empty</code> - Whether subject can be empty</li>
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.subject_full_stop</code> - Character that should not appear at end of subject</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">body-leading-blank</code> - Require a blank line before the body</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">body-max-line-length</code> - Maximum line length in the body (default: 100)</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">body-case / body-empty / body-full-stop</code> - Body case, presence and punctuation</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">body-max-length / body-min-length</code> - Length bounds for the body</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">footer-leading-blank</code> - Require a blank line before the footer</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">footer-max-line-length</code> - Maximum line length in the footer</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">footer-empty / footer-max-length / footer-min-length</code> - Footer presence and length bounds</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">references-empty / signed-off-by / trailer-exists</code> - Issue references and required trailers</li>
                   </ul>
-                </div>
-
-                <div>
-                  <h3 class="text-lg font-semibold mb-2 text-foreground">Header Rules</h3>
-                  <ul class="list-disc list-inside space-y-1 text-sm">
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.header_max_length</code> - Maximum header length (default: 72)</li>
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.header_min_length</code> - Minimum header length (default: 0)</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 class="text-lg font-semibold mb-2 text-foreground">Body & Footer Rules</h3>
-                  <ul class="list-disc list-inside space-y-1 text-sm">
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.body_leading_blank</code> - Require blank line before body</li>
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.body_max_line_length</code> - Maximum line length in body</li>
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.footer_leading_blank</code> - Require blank line before footer</li>
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.footer_max_line_length</code> - Maximum line length in footer</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 class="text-lg font-semibold mb-2 text-foreground">Breaking Changes</h3>
-                  <ul class="list-disc list-inside space-y-1 text-sm">
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.allow_breaking</code> - Whether breaking-change commits (! marker or BREAKING CHANGE footer) are allowed (default: true)</li>
-                  </ul>
+                  <p class="mt-2 text-sm">Run <code class="bg-surface-muted px-2 py-1 rounded">cargo commitlint print-config</code> to see all 36 rules with their resolved defaults.</p>
                 </div>
               </div>
             </div>
@@ -91,18 +96,16 @@ import { SEOService } from '../services/seo.service';
                 <div>
                   <h3 class="text-lg font-semibold mb-2 text-foreground">Parser Configuration</h3>
                   <ul class="list-disc list-inside space-y-1 text-sm mb-4">
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">parser.pattern</code> - Regex pattern for parsing conventional commits</li>
-                    <li><code class="bg-surface-muted px-2 py-1 rounded">parser.correspondence</code> - Map regex capture groups to commit fields</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">parser.header_pattern</code> - Regex used to split the commit header</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">parser.header_correspondence</code> - Names of the pattern&apos;s capture groups</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">parser.note_keywords</code> - Breaking-change trailers</li>
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">parser.reference_actions</code> - Issue-closing keywords such as closes and fixes</li>
                   </ul>
                   <div class="bg-surface-elevated border border-border rounded-lg p-4">
                     <pre class="text-sm overflow-x-auto"><code>[parser]
-pattern = "^(?P&lt;type&gt;\\w+)(?:\\((?P&lt;scope&gt;[^)]+)\\))?(?P&lt;breaking&gt;!)?:\\s(?P&lt;subject&gt;.*)$"
-
-[parser.correspondence]
-type = "type"
-scope = "scope"
-subject = "subject"
-breaking = "breaking"</code></pre>
+header_pattern = "^(?P&lt;type&gt;\\w+)(?:\\((?P&lt;scope&gt;[^)]+)\\))?(?P&lt;breaking&gt;!)?:\\s*(?P&lt;subject&gt;.*)$"
+header_correspondence = ["type", "scope", "subject"]
+note_keywords = ["BREAKING CHANGE", "BREAKING-CHANGE"]</code></pre>
                   </div>
                 </div>
               </div>
@@ -132,44 +135,44 @@ breaking = "breaking"</code></pre>
         <h2 class="text-2xl font-semibold mb-4 text-foreground">Complete Example</h2>
         <div class="text-foreground/80">
           <div class="bg-surface-elevated border border-border rounded-lg p-4">
-            <pre class="text-sm overflow-x-auto"><code># Top-level keys must come before any [table] headers
-ignores = []
+            <pre class="text-sm overflow-x-auto"><code># Skip validation for commits matching these regex patterns
+ignores = ["^Merge branch", "^Revert "]
 
-[rules]
-subject_case = ["sentence-case"]
-subject_empty = false
-subject_full_stop = "."
+# Built-in ignores for merge, revert and squash commits
+defaultIgnores = true
 
-header_max_length = 72
-header_min_length = 0
+[rules.type-enum]
+level = 2
+applicable = "always"
+value = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"]
 
-body_leading_blank = true
-body_max_line_length = 100
+[rules.type-case]
+level = 2
+applicable = "always"
+value = ["lower-case"]
 
-footer_leading_blank = true
-footer_max_line_length = 100
+# "never" inverts it: the type must NOT be empty
+[rules.type-empty]
+level = 2
+applicable = "never"
 
-allow_breaking = true
+[rules.subject-case]
+level = 2
+applicable = "always"
+value = ["lower-case", "sentence-case"]
 
-[rules.type]
-enum = [
-    "build", "chore", "ci", "docs", "feat", "fix",
-    "perf", "refactor", "revert", "style", "test"
-]
-case = "lowercase"
+[rules.header-max-length]
+level = 2
+applicable = "always"
+value = 100
 
-[rules.scope]
-enum = []
-case = "lowercase"
+# level 1 warns without failing the commit
+[rules.body-leading-blank]
+level = 1
+applicable = "always"
 
 [parser]
-pattern = "^(?P&lt;type&gt;\\w+)(?:\\((?P&lt;scope&gt;[^)]+)\\))?(?P&lt;breaking&gt;!)?:\\s(?P&lt;subject&gt;.*)$"
-
-[parser.correspondence]
-type = "type"
-scope = "scope"
-subject = "subject"
-breaking = "breaking"</code></pre>
+header_pattern = "^(?P&lt;type&gt;\\w+)(?:\\((?P&lt;scope&gt;[^)]+)\\))?(?P&lt;breaking&gt;!)?:\\s*(?P&lt;subject&gt;.*)$"</code></pre>
           </div>
         </div>
       </div>

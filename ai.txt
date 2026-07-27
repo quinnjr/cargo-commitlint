@@ -10,7 +10,7 @@ A command-line tool and git hook that validates commit messages to ensure they f
 1. Validates commit messages against Conventional Commits specification
 2. Configurable validation rules via TOML files
 3. Automatic git hook installation
-4. Integration with cargo-husky
+4. Git hook installation (built-in installer or build script)
 5. Customizable rules for commit types, scopes, subjects, bodies, and footers
 6. Regex-based parsing for flexible commit message formats
 7. Ignore patterns for skipping validation on specific commits
@@ -46,7 +46,7 @@ Supported types: feat, fix, docs, style, refactor, perf, test, build, ci, chore,
 
 # Integration Points
 - Git hooks (pre-commit, pre-push, commit-msg)
-- cargo-husky for hook management
+- Built-in git hook installer, plus a build script for dev-dependency use
 - CI/CD pipelines
 - Rust project workflows
 

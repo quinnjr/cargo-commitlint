@@ -4,13 +4,12 @@ A Rust-based commit message linter following the [Conventional Commits](https://
 
 ## Features
 
-- ✅ Validates commit messages against Conventional Commits specification
-- ✅ Configurable via TOML (similar to `commitlint`)
-- ✅ Git hook integration (similar to `cargo-husky`)
-- ✅ Supports all standard Conventional Commit types
-- ✅ Customizable rules for type, scope, subject, body, and footer
-- ✅ Regex-based commit message parsing
-- ✅ Ignore patterns for skipping validation
+- ✅ Full commitlint rule set — 36 rules with severity levels and always/never applicability
+- ✅ Configurable via TOML, JSON or YAML (`.commitlintrc` variants supported)
+- ✅ Lints git history, not just one message (`--last`, `--from`, `--to`, `--from-last-tag`)
+- ✅ Output as text, JSON or compact for CI consumption
+- ✅ Git hook installation, with a build script for dev-dependency use
+- ✅ Ignore patterns, plus built-in ignores for merge and revert commits
 
 ## Installation
 
@@ -22,7 +21,7 @@ cd cargo-commitlint
 cargo install --path .
 ```
 
-### From Crates.io (when published)
+### From Crates.io
 
 ```bash
 cargo install cargo-commitlint
@@ -36,37 +35,32 @@ After installation, `cargo-commitlint` is available as a cargo subcommand. Use i
 cargo commitlint <command>
 ```
 
-### Git Hooks with cargo-husky
+### Git Hooks
 
-This project uses `cargo-husky` to manage git hooks. The hooks are automatically installed when you run `cargo test`.
-
-#### Available Hooks
-
-- **pre-commit**: Runs `cargo fmt --check` and `cargo clippy` to ensure code quality
-- **pre-push**: Runs `cargo test` to ensure all tests pass before pushing
-- **commit-msg**: Validates commit messages using `cargo commitlint` and Conventional Commits
-
-The **commit-msg** hook only validates once a `cargo-commitlint` binary exists — either built in this repository with `cargo build --release` or installed with `cargo install cargo-commitlint`. If no binary is found, the hook prints a warning to stderr and skips validation instead of blocking the commit, so build the binary at least once on a fresh clone.
-
-#### Installing Hooks
-
-Simply run:
-
-```bash
-cargo test
-```
-
-This will compile the project and install all git hooks configured in `.cargo-husky/hooks/`.
-
-#### Manual Git Hook Installation (Alternative)
-
-If you prefer to use `cargo commitlint`'s built-in hook installer instead of `cargo-husky`:
+Install the commit-msg hook into the current repository:
 
 ```bash
 cargo commitlint install
 ```
 
-This will create a `.git/hooks/commit-msg` hook that validates all commit messages using `cargo commitlint`. Like the bundled hook, the generated hook validates only while a `cargo-commitlint` binary is present; if the binary is missing (after `cargo clean`, for example), it warns on stderr and lets the commit through unvalidated.
+That writes `.git/hooks/commit-msg`, which validates every commit message. Pass
+`--force` to replace a hook that is already there.
+
+When `cargo-commitlint` is a dev-dependency, the build script installs the hook
+for you. Configure it under `[package.metadata.commitlint]` in `Cargo.toml`:
+
+```toml
+[package.metadata.commitlint]
+# Write hooks to .commitlint/hooks/ so they can be committed to the repo
+user-hooks = true
+# no-install = true   # disable automatic installation entirely
+```
+
+Set `COMMITLINT_SKIP=1` to bypass the hook for a single commit.
+
+If no `cargo-commitlint` binary can be found, the hook prints a warning to
+stderr and lets the commit through rather than blocking it, so build or install
+the binary at least once on a fresh clone.
 
 ### Uninstall Git Hook
 
@@ -99,46 +93,53 @@ cp commitlint.example.toml commitlint.toml
 #### Example Configuration
 
 ```toml
-# Ignore patterns (regex) — top-level keys must come before any [table]
-ignores = [
-    # "Merge.*",
-    # "Revert.*",
-]
+# Copy to commitlint.toml, .commitlint.toml, .commitlintrc.toml or
+# .cargo/commitlint.toml. JSON and YAML variants (.commitlintrc.json,
+# .commitlintrc.yaml) work too.
 
-[rules]
-# Subject validation
-subject_case = ["sentence-case"]
-subject_empty = false
-subject_full_stop = "."
+# Skip validation for commits matching these regex patterns
+ignores = ["^Merge branch", "^Revert "]
 
-# Header validation
-header_max_length = 72
-header_min_length = 0
+# Built-in ignores for merge, revert and squash commits
+defaultIgnores = true
 
-# Body validation
-body_leading_blank = true
-body_max_line_length = 100
+# Every rule takes the same three fields:
+#   level       0 = disabled, 1 = warning, 2 = error
+#   applicable  "always", or "never" to invert the rule
+#   value       rule-specific; omit it (or use []) when the rule takes none
 
-# Footer validation
-footer_leading_blank = true
-footer_max_line_length = 100
+[rules.type-enum]
+level = 2
+applicable = "always"
+value = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"]
 
-# Whether breaking-change commits (`!` or `BREAKING CHANGE:` footer) are allowed
-allow_breaking = true
+[rules.type-case]
+level = 2
+applicable = "always"
+value = ["lower-case"]
 
-# Type validation
-[rules.type]
-enum = ["feat", "fix", "docs", "style", "refactor", "test", "chore"]
-case = "lowercase"
+# "never" inverts it: the type must NOT be empty
+[rules.type-empty]
+level = 2
+applicable = "never"
 
-# Scope validation
-[rules.scope]
-enum = []  # Empty means all scopes allowed
-case = "lowercase"
+[rules.subject-case]
+level = 2
+applicable = "always"
+value = ["lower-case", "sentence-case"]
 
-# Parser configuration
+[rules.header-max-length]
+level = 2
+applicable = "always"
+value = 100
+
+# level 1 reports a warning without failing the commit
+[rules.body-leading-blank]
+level = 1
+applicable = "always"
+
 [parser]
-pattern = "^(?P<type>\\w+)(?:\\((?P<scope>[^)]+)\\))?(?P<breaking>!)?:\\s(?P<subject>.*)$"
+header_pattern = "^(?P<type>\\w+)(?:\\((?P<scope>[^)]+)\\))?(?P<breaking>!)?:\\s*(?P<subject>.*)$"
 ```
 
 ## Conventional Commits Format
@@ -189,71 +190,95 @@ Invalid commit messages:
 
 ```
 invalid: bad commit type
-feat:Missing space after colon
-feat: subject too long and exceeds the maximum length limit of 72 characters
+Feat: capitalised type
+feat: ends with a period.
+no conventional prefix at all
 ```
 
-- `invalid: bad commit type` — `type-enum`: `invalid` is not one of the allowed types
-- `feat:Missing space after colon` — the parser pattern requires `:` followed by whitespace, so the header does not match at all
-- `feat: subject too long ...` — `header-max-length`: the header is 76 characters, over the 72 default
+- `invalid: bad commit type` — `type-enum`: not one of the allowed types
+- `Feat: capitalised type` — `type-case` (and `type-enum`): types must be lower-case
+- `feat: ends with a period.` — `subject-full-stop` and `header-full-stop`
+- `no conventional prefix at all` — `type-empty` and `subject-empty`: the header does not parse
+
+Run `cargo commitlint print-config` to see which rules are active and at what level.
 
 ## Configuration Options
 
-### Rules
+Configuration is commitlint-compatible. Every rule is configured the same way:
 
-- `rules.type.enum`: List of allowed commit types (empty = all allowed)
-- `rules.type.case`: Case requirement (`lowercase`, `uppercase`, `camel-case`, `kebab-case`, `pascal-case`, `snake-case`)
-- `rules.scope.enum`: List of allowed scopes (empty = all allowed)
-- `rules.scope.case`: Case requirement for scope
-- `rules.subject_case`: List of allowed case formats (`sentence-case`, `lowercase`, `uppercase`, `start-case`). Note: `sentence-case` is permissive — it accepts any subject that starts with a letter or digit
-- `rules.subject_empty`: Whether subject can be empty
-- `rules.subject_full_stop`: Character that should not appear at end of subject
-- `rules.header_max_length`: Maximum header length
-- `rules.header_min_length`: Minimum header length
-- `rules.body_leading_blank`: Require blank line before body
-- `rules.body_max_line_length`: Maximum line length in body
-- `rules.footer_leading_blank`: Require blank line before footer
-- `rules.footer_max_line_length`: Maximum line length in footer
-- `rules.allow_breaking`: Whether breaking-change commits (`!` marker or `BREAKING CHANGE:` footer) are allowed (default `true`)
+```toml
+[rules.<rule-name>]
+level = 2            # 0 = disabled, 1 = warning, 2 = error
+applicable = "always" # or "never", which inverts the rule
+value = ...          # rule-specific; omit it (or use []) when the rule takes none
+```
 
-### Parser
+`applicable = "never"` inverts the check — `type-empty` with `never` means the
+type must *not* be empty.
 
-- `parser.pattern`: Regex pattern for parsing conventional commits
-- `parser.correspondence`: Map regex capture groups to commit fields
+### Available rules
 
-### Ignores
+- **Type**: `type-enum`, `type-case`, `type-empty`, `type-max-length`, `type-min-length`
+- **Scope**: `scope-enum`, `scope-case`, `scope-empty`, `scope-max-length`, `scope-min-length`
+- **Subject**: `subject-case`, `subject-empty`, `subject-full-stop`, `subject-max-length`, `subject-min-length`, `subject-exclamation-mark`
+- **Header**: `header-case`, `header-full-stop`, `header-max-length`, `header-min-length`, `header-trim`
+- **Body**: `body-case`, `body-empty`, `body-full-stop`, `body-leading-blank`, `body-max-length`, `body-max-line-length`, `body-min-length`
+- **Footer**: `footer-empty`, `footer-leading-blank`, `footer-max-length`, `footer-max-line-length`, `footer-min-length`
+- **Other**: `references-empty`, `signed-off-by`, `trailer-exists`
 
-- `ignores`: List of regex patterns for commits to skip validation
+Case values are `lower-case`, `upper-case`, `camel-case`, `kebab-case`,
+`pascal-case`, `sentence-case`, `snake-case`, `start-case`.
+
+Run `cargo commitlint print-config` to see every rule with its resolved default.
+
+### Top-level keys
+
+- `rules`: the rule table described above
+- `parser.header_pattern`: regex used to split the header
+- `parser.header_correspondence`: names of the pattern's capture groups
+- `parser.note_keywords`: breaking-change trailers (`BREAKING CHANGE`, `BREAKING-CHANGE`)
+- `parser.reference_actions`: issue-closing keywords (`closes`, `fixes`, ...)
+- `ignores`: regex patterns for commits to skip entirely
+- `defaultIgnores`: skip merge, revert and squash commits (default `true`)
+- `extends`: inherit from a preset, e.g. `["conventional"]`
+- `helpUrl`: URL shown in error output
 
 ## Integration with Cargo
 
-This tool is designed to work seamlessly with Rust projects and integrates with `cargo-husky` for comprehensive git hook management.
+Add `cargo-commitlint` as a dev-dependency and its build script installs the
+commit-msg hook when the crate is built:
 
-### Using cargo-husky (Recommended)
+```toml
+[dev-dependencies]
+cargo-commitlint = "2"
 
-This project includes `cargo-husky` configuration with pre-commit, pre-push, and commit-msg hooks:
-
-1. **Pre-commit hook**: Ensures code is formatted (`cargo fmt`) and passes clippy checks
-2. **Pre-push hook**: Runs all tests before allowing pushes
-3. **Commit-msg hook**: Validates commit messages using `cargo commitlint` (skipped with a warning on stderr if no `cargo-commitlint` binary has been built or installed)
-
-To activate the hooks, simply run:
-
-```bash
-cargo test
+[package.metadata.commitlint]
+user-hooks = true
 ```
 
-The hooks are defined in `.cargo-husky/hooks/` and will be automatically installed.
-
-### Using cargo commitlint's Built-in Hook Installer
-
-Alternatively, you can use `cargo commitlint`'s built-in installer:
+`user-hooks = true` writes the hook to `.commitlint/hooks/` so it can be
+committed and shared; point git at it once with:
 
 ```bash
-cargo commitlint install
+git config core.hooksPath .commitlint/hooks
 ```
 
-This will install only the commit-msg hook for commit message validation. As with the bundled hook, validation is skipped with a warning on stderr whenever no `cargo-commitlint` binary can be found.
+Set `no-install = true` to disable automatic installation, or use
+`cargo commitlint install` to manage the hook by hand.
+
+### Linting history in CI
+
+```bash
+# every commit since the last tag
+cargo commitlint check --from-last-tag
+
+# a range, or just the most recent commit
+cargo commitlint check --from origin/main --to HEAD
+cargo commitlint check --last
+
+# machine-readable output
+cargo commitlint check --last --format json
+```
 
 ## License
 
