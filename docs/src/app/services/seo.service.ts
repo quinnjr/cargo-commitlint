@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
 export interface SEOData {
@@ -27,6 +27,10 @@ export class SEOService {
   private defaultTitle = 'cargo-commitlint - Rust-based Commit Message Linter';
   private defaultDescription = 'A Rust-based commit message linter following the Conventional Commits specification. Configurable via TOML, integrates with cargo-husky, and validates commit messages for Rust projects.';
   private defaultKeywords = 'rust, commitlint, conventional commits, git hooks, cargo, rust tooling, commit message validation, code quality, developer tools';
+
+  // Injected rather than using the global `document`, which does not exist
+  // while the site is being prerendered on the server.
+  private readonly doc = inject(DOCUMENT);
 
   constructor(
     private title: Title,
@@ -71,11 +75,11 @@ export class SEOService {
     this.meta.updateTag({ property: 'twitter:url', content: url });
 
     // Update canonical URL
-    let link: HTMLLinkElement | null = document.querySelector('link[rel="canonical"]');
+    let link: HTMLLinkElement | null = this.doc.querySelector('link[rel="canonical"]');
     if (!link) {
-      link = document.createElement('link');
+      link = this.doc.createElement('link');
       link.setAttribute('rel', 'canonical');
-      document.head.appendChild(link);
+      this.doc.head.appendChild(link);
     }
     link.setAttribute('href', url);
   }
