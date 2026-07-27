@@ -23,6 +23,11 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
+        with:
+          # action-setup v6 requires an explicit version and reads the
+          # repository root by default. This project has no root
+          # package.json -- the packageManager key lives in docs/.
+          package_json_file: docs/package.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
