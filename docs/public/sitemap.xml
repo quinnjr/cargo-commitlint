@@ -10,37 +10,37 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://quinnjr.github.io/cargo-commitlint/getting-started</loc>
+    <loc>https://quinnjr.github.io/cargo-commitlint/getting-started/</loc>
     <lastmod>2025-12-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://quinnjr.github.io/cargo-commitlint/configuration</loc>
+    <loc>https://quinnjr.github.io/cargo-commitlint/configuration/</loc>
     <lastmod>2025-12-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://quinnjr.github.io/cargo-commitlint/examples</loc>
+    <loc>https://quinnjr.github.io/cargo-commitlint/examples/</loc>
     <lastmod>2025-12-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://quinnjr.github.io/cargo-commitlint/conventional-commits</loc>
+    <loc>https://quinnjr.github.io/cargo-commitlint/conventional-commits/</loc>
     <lastmod>2025-12-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://quinnjr.github.io/cargo-commitlint/api-reference</loc>
+    <loc>https://quinnjr.github.io/cargo-commitlint/api-reference/</loc>
     <lastmod>2025-12-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://quinnjr.github.io/cargo-commitlint/contributing</loc>
+    <loc>https://quinnjr.github.io/cargo-commitlint/contributing/</loc>
     <lastmod>2025-12-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

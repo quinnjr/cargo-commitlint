@@ -58,10 +58,14 @@ export class SEOService {
     // Resolve the canonical URL: an explicit `canonicalUrl` wins, then `ogUrl`,
     // otherwise it is composed from `baseUrl` and the route-relative `path`
     // (the home page keeps its trailing slash, sub-pages have none).
+    // Trailing slashes match what GitHub Pages actually serves: each route is
+    // prerendered to `<path>/index.html`, so `/configuration` 301-redirects to
+    // `/configuration/`. Pointing the canonical at the redirect target avoids
+    // advertising a URL that never returns 200.
     const url =
       data.canonicalUrl ||
       data.ogUrl ||
-      (data.path ? `${this.baseUrl}/${data.path}` : `${this.baseUrl}/`);
+      (data.path ? `${this.baseUrl}/${data.path}/` : `${this.baseUrl}/`);
 
     // Update Open Graph
     this.meta.updateTag({ property: 'og:title', content: data.ogTitle || title });
