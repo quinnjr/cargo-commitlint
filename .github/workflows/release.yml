@@ -13,6 +13,8 @@ jobs:
     name: Release
     runs-on: ${{ matrix.os }}
     strategy:
+      # One platform failing should not cancel the binaries for the others.
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         include:
@@ -33,6 +35,10 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
+          # The matrix cross-compiles, and macos-latest is arm64, so the
+          # requested target is not always the host. Without this the build
+          # fails with "can't find crate for `core`".
+          targets: ${{ matrix.target }}
 
       - name: Cache cargo registry
         uses: actions/cache@v6
