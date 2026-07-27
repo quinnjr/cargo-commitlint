@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import "tailwindcss";
-@import "@pegasusheavy/tailswatch/themes/oxide";
+@import "tailswatch/themes/oxide";
 
 @source "../node_modules/@quinnjr/ngx-tailwindcss/**/*.{js,mjs}";
