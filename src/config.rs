@@ -505,3 +505,42 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+mod value_less_rule_tests {
+    use super::*;
+    use crate::rules::RuleLevel;
+
+    /// commitlint's `[2, "never"]` shape has no value; the natural TOML encoding
+    /// is `value = []`. That previously failed to deserialize into `Rule<()>` and
+    /// took the whole config down with it.
+    #[test]
+    fn empty_array_value_is_accepted() {
+        let toml_src = r#"
+[rules.type-empty]
+level = 2
+applicable = "never"
+value = []
+
+[rules.body-leading-blank]
+level = 1
+applicable = "always"
+value = []
+"#;
+        let config: Config = toml::from_str(toml_src).expect("value = [] must deserialize");
+        assert_eq!(config.rules.type_empty.level, RuleLevel::Error);
+        assert_eq!(config.rules.body_leading_blank.level, RuleLevel::Warning);
+    }
+
+    /// The example config is what users are told to copy, so it must load.
+    #[test]
+    fn shipped_example_config_loads() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("commitlint.example.toml");
+        // Excluded from the published package; only assert when present in-tree.
+        if !path.exists() {
+            return;
+        }
+        let config = Config::from_file(&path).expect("commitlint.example.toml must load");
+        assert!(!config.rules.type_enum.value.is_empty());
+    }
+}

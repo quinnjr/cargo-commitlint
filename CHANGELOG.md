@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The shipped `commitlint.example.toml` could not be loaded at all. Rules that
+  take no value of their own were written as `value = []` -- the natural TOML
+  encoding of commitlint's `[2, "never"]` -- but that failed to deserialize and
+  took the whole config down with it, so copying the example exactly as the docs
+  instruct left the tool refusing to start. Value-less rules now accept and
+  discard whatever is supplied.
 - Long multibyte commit headers no longer crash the linter. The oversized-header
   display truncated by byte index, so a cut landing inside a character panicked
   (`end byte index 69 is not a char boundary`). Any sufficiently long accented or

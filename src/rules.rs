@@ -132,6 +132,21 @@ impl CaseType {
     }
 }
 
+/// Value placeholder for rules that take no configuration of their own.
+///
+/// commitlint writes these as `[2, "never"]` with no third element, and the
+/// natural TOML encoding of that is `value = []` -- exactly what the shipped
+/// example config uses. A plain `()` only deserializes from unit, so such a
+/// config failed to load at all. Accept and discard whatever is supplied.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize)]
+pub struct NoValue;
+
+impl<'de> Deserialize<'de> for NoValue {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        serde::de::IgnoredAny::deserialize(deserializer).map(|_| NoValue)
+    }
+}
+
 /// Generic rule configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Rule<T: Clone + Default> {
@@ -191,11 +206,11 @@ pub struct Rules {
     #[serde(rename = "body-case")]
     pub body_case: Rule<Vec<CaseType>>,
     #[serde(rename = "body-empty")]
-    pub body_empty: Rule<()>,
+    pub body_empty: Rule<NoValue>,
     #[serde(rename = "body-full-stop")]
     pub body_full_stop: Rule<String>,
     #[serde(rename = "body-leading-blank")]
-    pub body_leading_blank: Rule<()>,
+    pub body_leading_blank: Rule<NoValue>,
     #[serde(rename = "body-max-length")]
     pub body_max_length: Rule<usize>,
     #[serde(rename = "body-max-line-length")]
@@ -205,9 +220,9 @@ pub struct Rules {
 
     // Footer rules
     #[serde(rename = "footer-empty")]
-    pub footer_empty: Rule<()>,
+    pub footer_empty: Rule<NoValue>,
     #[serde(rename = "footer-leading-blank")]
-    pub footer_leading_blank: Rule<()>,
+    pub footer_leading_blank: Rule<NoValue>,
     #[serde(rename = "footer-max-length")]
     pub footer_max_length: Rule<usize>,
     #[serde(rename = "footer-max-line-length")]
@@ -225,13 +240,13 @@ pub struct Rules {
     #[serde(rename = "header-min-length")]
     pub header_min_length: Rule<usize>,
     #[serde(rename = "header-trim")]
-    pub header_trim: Rule<()>,
+    pub header_trim: Rule<NoValue>,
 
     // Scope rules
     #[serde(rename = "scope-case")]
     pub scope_case: Rule<Vec<CaseType>>,
     #[serde(rename = "scope-empty")]
-    pub scope_empty: Rule<()>,
+    pub scope_empty: Rule<NoValue>,
     #[serde(rename = "scope-enum")]
     pub scope_enum: Rule<Vec<String>>,
     #[serde(rename = "scope-max-length")]
@@ -243,7 +258,7 @@ pub struct Rules {
     #[serde(rename = "subject-case")]
     pub subject_case: Rule<Vec<CaseType>>,
     #[serde(rename = "subject-empty")]
-    pub subject_empty: Rule<()>,
+    pub subject_empty: Rule<NoValue>,
     #[serde(rename = "subject-full-stop")]
     pub subject_full_stop: Rule<String>,
     #[serde(rename = "subject-max-length")]
@@ -251,13 +266,13 @@ pub struct Rules {
     #[serde(rename = "subject-min-length")]
     pub subject_min_length: Rule<usize>,
     #[serde(rename = "subject-exclamation-mark")]
-    pub subject_exclamation_mark: Rule<()>,
+    pub subject_exclamation_mark: Rule<NoValue>,
 
     // Type rules
     #[serde(rename = "type-case")]
     pub type_case: Rule<Vec<CaseType>>,
     #[serde(rename = "type-empty")]
-    pub type_empty: Rule<()>,
+    pub type_empty: Rule<NoValue>,
     #[serde(rename = "type-enum")]
     pub type_enum: Rule<Vec<String>>,
     #[serde(rename = "type-max-length")]
@@ -267,7 +282,7 @@ pub struct Rules {
 
     // Other rules
     #[serde(rename = "references-empty")]
-    pub references_empty: Rule<()>,
+    pub references_empty: Rule<NoValue>,
     #[serde(rename = "signed-off-by")]
     pub signed_off_by: Rule<String>,
     #[serde(rename = "trailer-exists")]
@@ -332,7 +347,7 @@ impl Rules {
             body_leading_blank: Rule {
                 level: RuleLevel::Warning,
                 applicable: Applicable::Always,
-                value: (),
+                value: NoValue,
             },
             body_max_length: Rule::default(),
             body_max_line_length: Rule {
@@ -345,7 +360,7 @@ impl Rules {
             footer_leading_blank: Rule {
                 level: RuleLevel::Warning,
                 applicable: Applicable::Always,
-                value: (),
+                value: NoValue,
             },
             footer_max_length: Rule::default(),
             footer_max_line_length: Rule {
@@ -369,7 +384,7 @@ impl Rules {
             header_trim: Rule {
                 level: RuleLevel::Error,
                 applicable: Applicable::Always,
-                value: (),
+                value: NoValue,
             },
             scope_case: Rule {
                 level: RuleLevel::Error,
@@ -388,7 +403,7 @@ impl Rules {
             subject_empty: Rule {
                 level: RuleLevel::Error,
                 applicable: Applicable::Never,
-                value: (),
+                value: NoValue,
             },
             subject_full_stop: Rule {
                 level: RuleLevel::Error,
@@ -406,7 +421,7 @@ impl Rules {
             type_empty: Rule {
                 level: RuleLevel::Error,
                 applicable: Applicable::Never,
-                value: (),
+                value: NoValue,
             },
             type_enum: Rule {
                 level: RuleLevel::Error,
