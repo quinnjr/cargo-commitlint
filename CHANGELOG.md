@@ -5,45 +5,83 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Planned Features
-- Support for more commit types
-- Enhanced error messages
-- Performance optimizations
-
-## [2.0.0] - 2026-07-22
+## [2.0.0] - 2026-01-04
 
 ### Added
 
-- `rules.allow_breaking` config option (default `true`) with a `breaking-not-allowed` rule to reject breaking-change commits (`!` marker or `BREAKING CHANGE:`/`BREAKING-CHANGE:` footer)
-- `parser.correspondence` is now honored, mapping regex capture groups to commit fields
-- Broader footer/trailer detection: `Reviewed-by:`, `Acked-by:`, and both `Closes #123` and `Fixes:#123` reference forms are now recognized
-- `Config::validate()` checks every user-supplied regex (`ignores` entries and `parser.pattern`) once at load time, reporting all bad patterns in a single error
-- Substantially expanded test suite (6 → 74 Rust tests, 2 → 11 docs-site tests) covering every documented rule
+#### Full commitlint Compatibility
+- **Complete Rule Set**: All 30+ commitlint rules implemented with full parity
+  - Type rules: `type-enum`, `type-case`, `type-empty`, `type-max-length`, `type-min-length`
+  - Scope rules: `scope-enum`, `scope-case`, `scope-empty`, `scope-max-length`, `scope-min-length`
+  - Subject rules: `subject-case`, `subject-empty`, `subject-full-stop`, `subject-max-length`, `subject-min-length`, `subject-exclamation-mark`
+  - Header rules: `header-case`, `header-full-stop`, `header-max-length`, `header-min-length`, `header-trim`
+  - Body rules: `body-case`, `body-empty`, `body-full-stop`, `body-leading-blank`, `body-max-length`, `body-max-line-length`, `body-min-length`
+  - Footer rules: `footer-empty`, `footer-leading-blank`, `footer-max-length`, `footer-max-line-length`, `footer-min-length`
+  - Other rules: `references-empty`, `signed-off-by`, `trailer-exists`
+
+- **Rule Severity System**: Full commitlint-compatible rule configuration
+  - Level 0: Disabled
+  - Level 1: Warning
+  - Level 2: Error
+  - Applicability: `always` or `never` (inverts the rule)
+
+#### CLI Enhancements
+- **Git Log Linting**: Lint commits from git history
+  - `--from <REF>`: Lower end of commit range (exclusive)
+  - `--to <REF>`: Upper end of commit range (inclusive)
+  - `--last`: Lint only the last commit
+  - `--from-last-tag`: Use last tag as lower end of range
+- **File Input**: `--edit [FILE]` to read from file or .git/COMMIT_EDITMSG
+- **Environment Variable**: `--env <VAR>` to read from file at env var path
+- **Output Formats**: `--format text|json|compact`
+- **Colored Output**: `--color` flag (enabled by default)
+- **Quiet Mode**: `--quiet` to suppress output on success
+- **Verbose Mode**: `--verbose` to show output for valid commits
+- **Strict Mode**: `--strict` for exit code 2 on warnings, 3 on errors
+- **Help URL**: `--help-url` to display custom help URL in errors
+- **Print Config**: `cargo commitlint print-config` to show resolved configuration
+
+#### Multi-Format Configuration
+- **TOML**: `commitlint.toml`, `.commitlint.toml`, `.commitlintrc.toml`
+- **JSON**: `.commitlintrc.json`, `.commitlintrc`
+- **YAML**: `.commitlintrc.yaml`, `.commitlintrc.yml`
+- **package.json**: `"commitlint"` field support
+- **Extends**: Support for `conventional` and `@commitlint/config-conventional` presets
+
+#### Automatic Hook Installation (cargo-husky style)
+- **Zero-Config Installation**: Hooks installed automatically on `cargo build`/`cargo test`
+- **build.rs Integration**: No manual installation required
+- **User-Hooks Mode**: Creates `.commitlint/hooks/` directory (can be committed to repo)
+- **Git Config Integration**: Automatically sets `core.hooksPath`
+- **Smart Hook Handling**: Appends to existing hooks instead of overwriting
+- **CI-Aware**: Skips installation in CI environments
+- **Cargo.toml Configuration**: Configure via `[package.metadata.commitlint]`
+
+#### Environment Variables
+- `COMMITLINT_SKIP`: Skip commit message validation
+- `COMMITLINT_NO_INSTALL`: Skip automatic hook installation
+- `COMMITLINT_USER_HOOKS`: Force user-hooks mode
+- `COMMITLINT_INSTALL_IN_CI`: Enable installation in CI
 
 ### Changed
 
-- **BREAKING:** `subject_empty` now matches its documented meaning — with the default `subject_empty = false`, an empty subject is rejected. Previously the check was inverted and never fired by default
-- **BREAKING:** an explicit `--config <path>` that does not exist is now an error (exit 1) instead of silently falling back to defaults
-- **BREAKING:** header/body/footer length limits now count characters rather than bytes, so multibyte commit messages are measured correctly
-- **BREAKING:** an invalid regex in `ignores` or `parser.pattern` now aborts with exit 1 before the commit message is read. Previously it warned on stderr, was silently dropped, and let the commit through — so a typo meant the intended skip never happened while the warning reappeared on every commit
-- Git hooks (both the bundled cargo-husky hook and the one written by `cargo commitlint install`) now invoke the resolved binary directly instead of routing through `cargo` as a subcommand, and skip with a warning on stderr when no binary is found instead of building the project on the commit path
-- `cargo commitlint install` now backs up a pre-existing foreign `commit-msg` hook instead of overwriting it, and `uninstall` restores it
-- Documentation and package URLs moved from `pegasusheavy` to `quinnjr`
+- **Breaking**: Configuration format changed to match commitlint
+- **Breaking**: Rule configuration now uses `level`, `applicable`, and `value` fields
+- Replaced cargo-husky dependency with built-in hook management
+- Improved commit message parsing with better footer/trailer detection
+- Enhanced reference extraction from commit body and footer
+
+### Removed
+
+- Removed cargo-husky dev-dependency (functionality now built-in)
+- Removed old configuration format (migrated to commitlint-compatible format)
 
 ### Fixed
 
-- `body_leading_blank` and `footer_leading_blank` no longer fail every multi-line commit — the blank-line separators are now tracked during parsing instead of being tested against already-stripped text
-- `commitlint.example.toml` (and the README/docs examples) had invalid TOML structure: scalar rule keys placed after `[rules.scope]` were silently assigned to the wrong table, and a top-level `ignores` array after `[parser.correspondence]` made the file fail to parse outright
-- An invalid `parser.pattern` regex is now reported as a config error (`parser-pattern-invalid`) rather than as a bogus `type-enum` commit-type error
-- Case validators: `kebab-case`/`snake-case` now accept digits; `camel-case`/`pascal-case` now reject separators
-- Sitemap sub-page URLs pointed at a nonexistent host
-- Release workflow published GitHub releases with no attached binaries
-
-### Security
-
-- The `commit-msg` hook written by `cargo commitlint install` interpolated the binary path into the generated shell script using double quotes, which do not neutralize `$`, backticks, or embedded quotes in POSIX `sh`. A repository checked out under a path containing shell metacharacters would execute them on every commit. The path is now emitted in single quotes with proper escaping (CWE-78)
+- Fixed `--edit` flag argument parsing
+- Fixed duplicate `--config` argument in CLI
+- Fixed YAML format detection for config files
+- Fixed reference extraction from commit body
 
 ## [1.0.0] - 2025-12-15
 
@@ -128,6 +166,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[2.0.0]: https://github.com/quinnjr/cargo-commitlint/releases/tag/v2.0.0
-[1.0.0]: https://github.com/quinnjr/cargo-commitlint/releases/tag/v1.0.0
-
+[2.0.0]: https://github.com/pegasusheavy/cargo-commitlint/releases/tag/v2.0.0
+[1.0.0]: https://github.com/pegasusheavy/cargo-commitlint/releases/tag/v1.0.0

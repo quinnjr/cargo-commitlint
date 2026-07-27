@@ -1,0 +1,34 @@
+#!/bin/sh
+# Git commit-msg hook installed by cargo-commitlint
+# This hook validates commit messages according to Conventional Commits specification
+# https://github.com/pegasusheavy/cargo-commitlint
+#
+# To disable this hook, set COMMITLINT_SKIP=1 environment variable
+
+COMMIT_MSG_FILE="$1"
+
+# Skip if COMMITLINT_SKIP is set
+if [ -n "$COMMITLINT_SKIP" ]; then
+    exit 0
+fi
+
+
+# Validate commit message with cargo-commitlint
+if command -v cargo >/dev/null 2>&1; then
+    # Try cargo subcommand first
+    if cargo commitlint --version >/dev/null 2>&1; then
+        cargo commitlint check --edit "$COMMIT_MSG_FILE"
+        exit $?
+    fi
+fi
+
+# Try direct binary
+if command -v cargo-commitlint >/dev/null 2>&1; then
+    cargo-commitlint check --edit "$COMMIT_MSG_FILE"
+    exit $?
+fi
+
+# cargo-commitlint not found, skip validation with warning
+echo "Warning: cargo-commitlint not found in PATH. Skipping commit message validation."
+echo "Install with: cargo install cargo-commitlint"
+exit 0
