@@ -96,8 +96,13 @@ impl ValidationResult {
         let mut output = String::new();
 
         // Header
-        let header_display = if self.commit.header.len() > 72 {
-            format!("{}...", &self.commit.header[..69])
+        let header_display = if self.commit.header.chars().count() > 72 {
+            // Truncate by characters, not bytes: slicing mid-codepoint panics on
+            // multibyte headers (accented or CJK commit messages).
+            format!(
+                "{}...",
+                self.commit.header.chars().take(69).collect::<String>()
+            )
         } else {
             self.commit.header.clone()
         };
@@ -1550,5 +1555,35 @@ mod tests {
             .results
             .iter()
             .any(|r| r.name == "header-max-length" && !r.valid));
+    }
+}
+
+#[cfg(test)]
+mod utf8_truncation_tests {
+    use super::*;
+
+    /// Headers over the display limit are truncated for output. Slicing by byte
+    /// index panicked when the cut landed inside a multibyte character, so any
+    /// long accented or CJK commit message crashed the linter.
+    #[test]
+    fn long_multibyte_header_does_not_panic() {
+        let long = "é".repeat(120);
+        let validator = Validator::new(Config::default());
+        let result = validator.validate(&format!("feat: {long}"));
+        // The important part is that formatting the oversized header completes.
+        let _ = result.format(false, false);
+        assert!(
+            result.has_errors(),
+            "a 126-character header should exceed the limit"
+        );
+    }
+
+    /// An oversized multibyte header must be measured the same way as ASCII.
+    #[test]
+    fn multibyte_and_ascii_headers_measure_alike() {
+        let validator = Validator::new(Config::default());
+        let ascii = validator.validate(&format!("feat: {}", "a".repeat(120)));
+        let multi = validator.validate(&format!("feat: {}", "é".repeat(120)));
+        assert_eq!(ascii.has_errors(), multi.has_errors());
     }
 }

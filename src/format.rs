@@ -77,8 +77,13 @@ impl Formatter {
         let mut output = String::new();
 
         // Input header
-        let header = if result.commit.header.len() > 72 {
-            format!("{}...", &result.commit.header[..69])
+        let header = if result.commit.header.chars().count() > 72 {
+            // Truncate by characters, not bytes: slicing mid-codepoint panics on
+            // multibyte headers (accented or CJK commit messages).
+            format!(
+                "{}...",
+                result.commit.header.chars().take(69).collect::<String>()
+            )
         } else {
             result.commit.header.clone()
         };

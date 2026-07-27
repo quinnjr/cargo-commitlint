@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-07-27
+
+### Fixed
+
+- Long multibyte commit headers no longer crash the linter. The oversized-header
+  display truncated by byte index, so a cut landing inside a character panicked
+  (`end byte index 69 is not a char boundary`). Any sufficiently long accented or
+  CJK header aborted with a Rust backtrace instead of reporting a lint result --
+  in a commit-msg hook that meant a crash rather than a failed check. Truncation
+  and measurement are now character-based in both the formatter and the validator.
+- The generated commit-msg hook interpolated the resolved binary path into shell
+  using double quotes, which do not neutralise `$`, backticks or quotes in POSIX
+  `sh`. A repository checked out under a path containing them executed that path's
+  contents on every commit. The path is now single-quoted with `'\''` escaping
+  (CWE-78), covered by a regression test.
+- The hook's fail-open warning goes to stderr, so editor and GUI git clients
+  surface the notice when validation is skipped because no binary was found.
+- `git2` no longer pulls in its default features. Only local `revwalk` and
+  `find_commit` are used, so the libssh2 and OpenSSL network transports were
+  compiled for nothing and broke builds in environments without that C toolchain.
+- Resolved the lints that prevented this codebase from passing
+  `cargo clippy -D warnings`: `or_insert_with(Vec::new)`, an identity `map_err`
+  and a manual descending sort.
+
+### Changed
+
+- `main` now tracks this release lineage. The 2.0.0 rules engine was published
+  but never merged, so `main` had continued on the 1.0.0-era codebase while CI,
+  documentation and dependency work accumulated on top; the two are now one line.
+- Hook installation uses `.commitlint/hooks` with the `build.rs` installer rather
+  than cargo-husky.
+- Repository, homepage and documentation URLs moved to the `quinnjr` owner.
+
 ## [2.0.0] - 2026-01-04
 
 ### Added
@@ -166,5 +199,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[2.0.0]: https://github.com/pegasusheavy/cargo-commitlint/releases/tag/v2.0.0
-[1.0.0]: https://github.com/pegasusheavy/cargo-commitlint/releases/tag/v1.0.0
+[2.1.0]: https://github.com/quinnjr/cargo-commitlint/releases/tag/v2.1.0
+[2.0.0]: https://github.com/quinnjr/cargo-commitlint/releases/tag/v2.0.0
+[1.0.0]: https://github.com/quinnjr/cargo-commitlint/releases/tag/v1.0.0
