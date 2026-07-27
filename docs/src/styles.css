@@ -3,4 +3,4 @@
 @import "tailwindcss";
 @import "@pegasusheavy/tailswatch/themes/oxide";
 
-@source "../node_modules/@pegasus-heavy/ngx-tailwindcss/**/*.{js,mjs}";
+@source "../node_modules/@quinnjr/ngx-tailwindcss/**/*.{js,mjs}";
