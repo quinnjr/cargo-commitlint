@@ -23,7 +23,10 @@ jobs:
             artifact_name: cargo-commitlint-linux-x86_64
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name: cargo-commitlint-windows-x86_64.exe
+            # No .exe here: this is the archive base name, so the suffix made
+            # Compress-Archive emit cargo-commitlint-windows-x86_64.exe.zip
+            # while the release step looked for ...-x86_64.zip.
+            artifact_name: cargo-commitlint-windows-x86_64
           - os: macos-latest
             target: x86_64-apple-darwin
             artifact_name: cargo-commitlint-macos-x86_64
