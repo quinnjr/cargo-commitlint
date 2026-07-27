@@ -60,7 +60,7 @@ import { SEOService } from '../services/seo.service';
 cargo install cargo-commitlint
 
 # Or install from source
-git clone https://github.com/pegasusheavy/cargo-commitlint.git
+git clone https://github.com/quinnjr/cargo-commitlint.git
 cd cargo-commitlint
 cargo install --path .
 
@@ -85,7 +85,7 @@ export class HomeComponent implements OnInit {
       title: 'cargo-commitlint - Rust-based Commit Message Linter',
       description: 'A Rust-based commit message linter following the Conventional Commits specification. Configurable via TOML, integrates with cargo-husky, and validates commit messages for Rust projects.',
       keywords: 'rust, commitlint, conventional commits, git hooks, cargo, rust tooling, commit message validation, code quality, developer tools',
-      canonicalUrl: 'https://pegasusheavy.github.io/cargo-commitlint/'
+      path: ''
     });
   }
 }

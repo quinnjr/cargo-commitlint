@@ -3,7 +3,7 @@
 # Project Information
 Name: cargo-commitlint
 Description: A Rust-based commit message linter following the Conventional Commits specification
-Repository: https://github.com/pegasusheavy/cargo-commitlint
+Repository: https://github.com/quinnjr/cargo-commitlint
 License: MIT OR Apache-2.0
 Language: Rust
 
@@ -18,7 +18,7 @@ Language: Rust
 
 # Installation
 From Source:
-  git clone https://github.com/pegasusheavy/cargo-commitlint.git
+  git clone https://github.com/quinnjr/cargo-commitlint.git
   cd cargo-commitlint
   cargo install --path .
 
@@ -73,7 +73,7 @@ Commit-msg: Validates commit messages using cargo-commitlint
 - Compatible with Conventional Commits specification
 
 # Documentation
-Full documentation available at: https://pegasusheavy.github.io/cargo-commitlint/
+Full documentation available at: https://quinnjr.github.io/cargo-commitlint/
 
 # Contributing
 Contributions welcome! Please follow Conventional Commits for commit messages.

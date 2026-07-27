@@ -77,9 +77,9 @@ Closes #123</code></pre>
             <div>
               <span class="inline-block bg-error-500 text-white px-2 py-1 rounded text-xs mb-2">Invalid</span>
               <div class="bg-surface-elevated border border-border rounded-lg p-4">
-                <code class="text-sm">feat:Missing colon</code>
+                <code class="text-sm">feat:Missing space after colon</code>
               </div>
-              <p class="text-sm text-foreground/60 mt-2">Error: Missing colon after type</p>
+              <p class="text-sm text-foreground/60 mt-2">Error: Missing space after colon</p>
             </div>
 
             <div>
@@ -167,7 +167,7 @@ export class ExamplesComponent implements OnInit {
       title: 'Examples - cargo-commitlint',
       description: 'Examples of valid and invalid commit messages for cargo-commitlint. Learn how to write proper Conventional Commits with real-world examples.',
       keywords: 'cargo-commitlint examples, conventional commits examples, commit message examples, rust commitlint examples',
-      canonicalUrl: 'https://pegasusheavy.github.io/cargo-commitlint/examples'
+      path: 'examples'
     });
   }
 }

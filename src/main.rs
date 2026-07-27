@@ -36,18 +36,25 @@ enum Commands {
     },
 }
 
+/// Strip the `commitlint` token that cargo injects when invoked as `cargo commitlint`.
+/// Only the subcommand position is removed, so a message that happens to contain
+/// "commitlint" survives intact.
+fn strip_cargo_subcommand(mut args: Vec<String>) -> Vec<String> {
+    if args.get(1).map(String::as_str) == Some("commitlint") {
+        args.remove(1);
+    }
+    args
+}
+
 fn main() {
-    // Filter out "commitlint" argument if passed by cargo
-    let args: Vec<String> = std::env::args().filter(|arg| arg != "commitlint").collect();
+    let args = strip_cargo_subcommand(std::env::args().collect());
 
     let cli = Cli::parse_from(args);
 
     let result = match cli.command {
-        Commands::Install => {
-            hook::HookInstaller::install().map_err(|e| format!("Failed to install hook: {}", e))
-        }
+        Commands::Install => hook::install().map_err(|e| format!("Failed to install hook: {}", e)),
         Commands::Uninstall => {
-            hook::HookInstaller::uninstall().map_err(|e| format!("Failed to uninstall hook: {}", e))
+            hook::uninstall().map_err(|e| format!("Failed to uninstall hook: {}", e))
         }
         Commands::Check { message, config } => validate_commit_message(message, config),
     };
@@ -69,11 +76,19 @@ fn validate_commit_message(
 ) -> Result<(), String> {
     // Load configuration
     let config = if let Some(path) = config_path {
-        config::Config::from_file(&path)
-            .map_err(|e| format!("Failed to load config from {}: {}", path.display(), e))?
+        let config = config::Config::from_file(&path)
+            .map_err(|e| format!("Failed to load config from {}: {}", path.display(), e))?;
+        config
+            .validate()
+            .map_err(|e| format!("Invalid config {}: {}", path.display(), e))?;
+        config
     } else {
-        config::Config::from_default_locations()
-            .map_err(|e| format!("Failed to load config: {}", e))?
+        let config = config::Config::from_default_locations()
+            .map_err(|e| format!("Failed to load config: {}", e))?;
+        config
+            .validate()
+            .map_err(|e| format!("Invalid config: {}", e))?;
+        config
     };
 
     // Get commit message
@@ -102,5 +117,45 @@ fn validate_commit_message(
             }
             Err("Validation failed".to_string())
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::strip_cargo_subcommand;
+
+    fn argv(args: &[&str]) -> Vec<String> {
+        args.iter().map(|s| s.to_string()).collect()
+    }
+
+    #[test]
+    fn strips_cargo_injected_subcommand_token() {
+        assert_eq!(
+            strip_cargo_subcommand(argv(&["cargo-commitlint", "commitlint", "check"])),
+            argv(&["cargo-commitlint", "check"])
+        );
+    }
+
+    #[test]
+    fn preserves_commitlint_inside_a_commit_message() {
+        let args = argv(&[
+            "cargo-commitlint",
+            "check",
+            "--message",
+            "fix commitlint bug",
+        ]);
+        assert_eq!(strip_cargo_subcommand(args.clone()), args);
+    }
+
+    #[test]
+    fn leaves_direct_invocation_untouched() {
+        let args = argv(&["cargo-commitlint", "check"]);
+        assert_eq!(strip_cargo_subcommand(args.clone()), args);
+    }
+
+    #[test]
+    fn handles_argv_with_only_the_program_name() {
+        let args = argv(&["cargo-commitlint"]);
+        assert_eq!(strip_cargo_subcommand(args.clone()), args);
     }
 }

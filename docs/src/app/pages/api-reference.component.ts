@@ -83,7 +83,7 @@ subject_case = ["sentence-case"]
 header_max_length = 72
 
 [parser]
-pattern = "^(?P&lt;type&gt;\\w+)(?:\\((?P&lt;scope&gt;[^)]+)\\))?:\\s(?P&lt;subject&gt;.*)$"
+pattern = "^(?P&lt;type&gt;\\w+)(?:\\((?P&lt;scope&gt;[^)]+)\\))?(?P&lt;breaking&gt;!)?:\\s(?P&lt;subject&gt;.*)$"
 
 ignores = []</code></pre>
           </div>
@@ -107,7 +107,7 @@ export class ApiReferenceComponent implements OnInit {
       title: 'API Reference - cargo-commitlint',
       description: 'Complete API reference for cargo-commitlint CLI commands, configuration options, exit codes, and environment variables.',
       keywords: 'cargo-commitlint API, commitlint CLI, rust commitlint commands, cargo-commitlint reference',
-      canonicalUrl: 'https://pegasusheavy.github.io/cargo-commitlint/api-reference'
+      path: 'api-reference'
     });
   }
 }

@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { SEOService } from '../services/seo.service';
 
 @Component({
   selector: 'app-configuration',
   standalone: true,
-  imports: [CommonModule],
   template: `
     <div class="container mx-auto px-4 py-12 max-w-4xl">
       <h1 class="text-4xl font-bold mb-8 text-foreground">Configuration</h1>
@@ -32,7 +30,8 @@ import { SEOService } from '../services/seo.service';
               <button (click)="activeTab = 'parser'" [class.border-b-2]="activeTab === 'parser'" [class.border-primary-500]="activeTab === 'parser'" class="px-4 py-2 text-foreground">Parser</button>
               <button (click)="activeTab = 'ignores'" [class.border-b-2]="activeTab === 'ignores'" [class.border-primary-500]="activeTab === 'ignores'" class="px-4 py-2 text-foreground">Ignores</button>
             </div>
-            <div *ngIf="activeTab === 'rules'">
+            @if (activeTab === 'rules') {
+            <div>
               <div class="space-y-4">
                 <div>
                   <h3 class="text-lg font-semibold mb-2 text-foreground">Type Rules</h3>
@@ -76,9 +75,18 @@ import { SEOService } from '../services/seo.service';
                     <li><code class="bg-surface-muted px-2 py-1 rounded">rules.footer_max_line_length</code> - Maximum line length in footer</li>
                   </ul>
                 </div>
+
+                <div>
+                  <h3 class="text-lg font-semibold mb-2 text-foreground">Breaking Changes</h3>
+                  <ul class="list-disc list-inside space-y-1 text-sm">
+                    <li><code class="bg-surface-muted px-2 py-1 rounded">rules.allow_breaking</code> - Whether breaking-change commits (! marker or BREAKING CHANGE footer) are allowed (default: true)</li>
+                  </ul>
+                </div>
               </div>
             </div>
-            <div *ngIf="activeTab === 'parser'">
+            }
+            @if (activeTab === 'parser') {
+            <div>
               <div class="space-y-4">
                 <div>
                   <h3 class="text-lg font-semibold mb-2 text-foreground">Parser Configuration</h3>
@@ -99,7 +107,9 @@ breaking = "breaking"</code></pre>
                 </div>
               </div>
             </div>
-            <div *ngIf="activeTab === 'ignores'">
+            }
+            @if (activeTab === 'ignores') {
+            <div>
               <div class="space-y-4">
                 <div>
                   <h3 class="text-lg font-semibold mb-2 text-foreground">Ignore Patterns</h3>
@@ -113,6 +123,7 @@ breaking = "breaking"</code></pre>
                 </div>
               </div>
             </div>
+            }
           </div>
         </div>
       </div>
@@ -121,18 +132,10 @@ breaking = "breaking"</code></pre>
         <h2 class="text-2xl font-semibold mb-4 text-foreground">Complete Example</h2>
         <div class="text-foreground/80">
           <div class="bg-surface-elevated border border-border rounded-lg p-4">
-            <pre class="text-sm overflow-x-auto"><code>[rules]
-[rules.type]
-enum = [
-    "build", "chore", "ci", "docs", "feat", "fix",
-    "perf", "refactor", "revert", "style", "test"
-]
-case = "lowercase"
+            <pre class="text-sm overflow-x-auto"><code># Top-level keys must come before any [table] headers
+ignores = []
 
-[rules.scope]
-enum = []
-case = "lowercase"
-
+[rules]
 subject_case = ["sentence-case"]
 subject_empty = false
 subject_full_stop = "."
@@ -146,6 +149,19 @@ body_max_line_length = 100
 footer_leading_blank = true
 footer_max_line_length = 100
 
+allow_breaking = true
+
+[rules.type]
+enum = [
+    "build", "chore", "ci", "docs", "feat", "fix",
+    "perf", "refactor", "revert", "style", "test"
+]
+case = "lowercase"
+
+[rules.scope]
+enum = []
+case = "lowercase"
+
 [parser]
 pattern = "^(?P&lt;type&gt;\\w+)(?:\\((?P&lt;scope&gt;[^)]+)\\))?(?P&lt;breaking&gt;!)?:\\s(?P&lt;subject&gt;.*)$"
 
@@ -153,9 +169,7 @@ pattern = "^(?P&lt;type&gt;\\w+)(?:\\((?P&lt;scope&gt;[^)]+)\\))?(?P&lt;breaking
 type = "type"
 scope = "scope"
 subject = "subject"
-breaking = "breaking"
-
-ignores = []</code></pre>
+breaking = "breaking"</code></pre>
           </div>
         </div>
       </div>
@@ -172,7 +186,7 @@ export class ConfigurationComponent implements OnInit {
       title: 'Configuration - cargo-commitlint',
       description: 'Complete guide to configuring cargo-commitlint. Learn about TOML configuration options, validation rules, parser settings, and ignore patterns.',
       keywords: 'cargo-commitlint configuration, commitlint.toml, rust commitlint config, conventional commits configuration',
-      canonicalUrl: 'https://pegasusheavy.github.io/cargo-commitlint/configuration'
+      path: 'configuration'
     });
   }
 }

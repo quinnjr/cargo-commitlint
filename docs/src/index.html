@@ -1,14 +1,19 @@
 <!doctype html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E6DWG27SVR"></script>
+<!-- Google tag (gtag.js) — deferred until idle -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'G-E6DWG27SVR');
+  (window.requestIdleCallback || function (cb) { window.addEventListener('load', cb); })(function () {
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-E6DWG27SVR';
+    document.head.appendChild(s);
+  });
 </script>
   <meta charset="utf-8">
   <title>cargo-commitlint - Rust-based Commit Message Linter</title>
@@ -26,14 +31,14 @@
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://pegasusheavy.github.io/cargo-commitlint/">
+  <meta property="og:url" content="https://quinnjr.github.io/cargo-commitlint/">
   <meta property="og:title" content="cargo-commitlint - Rust-based Commit Message Linter">
   <meta property="og:description" content="A Rust-based commit message linter following the Conventional Commits specification. Configurable via TOML, integrates with cargo-husky, and validates commit messages for Rust projects.">
   <meta property="og:site_name" content="cargo-commitlint">
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="https://pegasusheavy.github.io/cargo-commitlint/">
+  <meta property="twitter:url" content="https://quinnjr.github.io/cargo-commitlint/">
   <meta property="twitter:title" content="cargo-commitlint - Rust-based Commit Message Linter">
   <meta property="twitter:description" content="A Rust-based commit message linter following the Conventional Commits specification. Configurable via TOML, integrates with cargo-husky, and validates commit messages for Rust projects.">
 
@@ -42,7 +47,7 @@
   <meta name="ai:keywords" content="rust, commitlint, conventional commits, git hooks, cargo, rust tooling, commit message validation, code quality, developer tools">
 
   <!-- Canonical URL -->
-  <link rel="canonical" href="https://pegasusheavy.github.io/cargo-commitlint/">
+  <link rel="canonical" href="https://quinnjr.github.io/cargo-commitlint/">
 
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -59,11 +64,11 @@
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Linux, macOS, Windows",
     "description": "A Rust-based commit message linter following the Conventional Commits specification. Configurable via TOML, integrates with cargo-husky, and validates commit messages for Rust projects.",
-    "url": "https://github.com/pegasusheavy/cargo-commitlint",
+    "url": "https://github.com/quinnjr/cargo-commitlint",
     "author": {
       "@type": "Organization",
       "name": "Pegasus Heavy Industries",
-      "url": "https://github.com/pegasusheavy"
+      "url": "https://github.com/quinnjr"
     },
     "license": "https://opensource.org/licenses/MIT",
     "copyrightHolder": {
@@ -71,7 +76,7 @@
       "name": "Pegasus Heavy Industries LLC"
     },
     "programmingLanguage": "Rust",
-    "codeRepository": "https://github.com/pegasusheavy/cargo-commitlint",
+    "codeRepository": "https://github.com/quinnjr/cargo-commitlint",
     "keywords": "rust, commitlint, conventional commits, git hooks, cargo, rust tooling, commit message validation, code quality, developer tools",
     "offers": {
       "@type": "Offer",
