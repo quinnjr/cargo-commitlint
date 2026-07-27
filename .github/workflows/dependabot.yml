@@ -16,6 +16,9 @@ jobs:
     name: Dependabot Auto-merge
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Fetch Dependabot metadata
         id: metadata
@@ -29,7 +32,15 @@ jobs:
       # human intervention.
       - name: Enable auto-merge for Dependabot PRs
         if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr merge --auto --squash "${{ github.event.pull_request.number }}"
+        # Try to enable auto-merge (used when required status checks are still
+        # pending). If auto-merge is not available because the branch has no
+        # protection rules / no pending required checks, fall back to merging
+        # the PR directly once it is mergeable.
+        run: |
+          gh pr merge --auto --squash "$PR_NUMBER" \
+            || gh pr merge --squash "$PR_NUMBER"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
 
