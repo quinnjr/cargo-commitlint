@@ -55,7 +55,7 @@ which = "8.0"
 colored = "3.0"
 # Local-only repository access (revwalk/find_commit); default features pull in
 # libssh2 and OpenSSL for network transports this tool never uses.
-git2 = { version = "0.20", default-features = false }
+git2 = { version = "0.21", default-features = false }
 glob = "0.3"
 unicode-segmentation = "1.12"
 
