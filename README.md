@@ -284,7 +284,7 @@ cargo commitlint check --last --format json
 
 Licensed under the MIT License.
 
-Copyright (c) 2025 Pegasus Heavy Industries LLC
+Copyright (c) 2025 Joseph R. Quinn
 
 See [LICENSE](LICENSE) or [LICENSE-MIT](LICENSE-MIT) for details.
 

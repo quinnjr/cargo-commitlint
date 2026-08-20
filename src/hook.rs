@@ -164,7 +164,7 @@ impl HookInstaller {
             r#"#!/bin/sh
 # Git commit-msg hook installed by cargo-commitlint
 # This hook validates commit messages according to Conventional Commits specification
-# https://github.com/pegasusheavy/cargo-commitlint
+# https://github.com/quinnjr/cargo-commitlint
 
 COMMIT_MSG_FILE="$1"
 

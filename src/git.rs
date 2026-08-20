@@ -84,7 +84,7 @@ impl GitRepo {
         for oid in revwalk {
             let oid = oid?;
             let commit = self.repo.find_commit(oid)?;
-            if let Some(msg) = commit.message() {
+            if let Ok(msg) = commit.message() {
                 messages.push(msg.to_string());
             }
         }
@@ -102,7 +102,7 @@ impl GitRepo {
         for oid in revwalk.take(n) {
             let oid = oid?;
             let commit = self.repo.find_commit(oid)?;
-            if let Some(msg) = commit.message() {
+            if let Ok(msg) = commit.message() {
                 messages.push(msg.to_string());
             }
         }
@@ -117,7 +117,7 @@ impl GitRepo {
         // Get all tags with their commit times
         let mut tag_times: Vec<(String, i64)> = Vec::new();
 
-        for tag_name in tags.iter().flatten() {
+        for tag_name in tags.iter().filter_map(|r| r.ok().flatten()) {
             if let Ok(reference) = self.repo.find_reference(&format!("refs/tags/{}", tag_name)) {
                 if let Ok(commit) = reference.peel_to_commit() {
                     tag_times.push((tag_name.to_string(), commit.time().seconds()));

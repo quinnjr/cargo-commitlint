@@ -5,7 +5,7 @@ edition = "2021"
 # Effective floor already imposed by dependencies (colored 1.80, clap 1.74);
 # std::io::IsTerminal needs 1.70, so it does not raise this.
 rust-version = "1.80"
-authors = ["Pegasus Heavy Industries LLC"]
+authors = ["Joseph R. Quinn"]
 description = "A Rust-based commit message linter following Conventional Commits specification, compatible with commitlint"
 license = "MIT"
 repository = "https://github.com/quinnjr/cargo-commitlint"

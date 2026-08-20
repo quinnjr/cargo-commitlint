@@ -241,7 +241,7 @@ fn generate_hook_script(config: &Config) -> String {
         r#"#!/bin/sh
 # Git commit-msg hook installed by cargo-commitlint
 # This hook validates commit messages according to Conventional Commits specification
-# https://github.com/pegasusheavy/cargo-commitlint
+# https://github.com/quinnjr/cargo-commitlint
 #
 # To disable this hook, set COMMITLINT_SKIP=1 environment variable
 
