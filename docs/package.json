@@ -38,7 +38,7 @@
     "@angular/build": "^21.2.19",
     "@angular/cli": "^21.2.19",
     "@angular/compiler-cli": "^21.2.18",
-    "@tailwindcss/postcss": "^4.3.3",
+    "@tailwindcss/postcss": "^4.3.4",
     "jsdom": "^27.1.0",
     "postcss": "^8.5.29",
     "tailwindcss": "^4.3.3",
